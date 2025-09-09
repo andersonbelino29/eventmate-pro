@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit, Trash2, Eye, Calendar, Users, DollarSign, BarChart3 } from "lucide-react";
+import { useTenant } from "@/hooks/useTenant";
 import Navbar from "@/components/Navbar";
 
 const Admin = () => {
+  const { currentTenant } = useTenant();
   const [events, setEvents] = useState([
     {
       id: "1",
@@ -40,8 +42,18 @@ const Admin = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Painel Administrativo</h1>
-          <p className="text-muted-foreground">Gerencie eventos, mesas e agendamentos</p>
+          <h1 className="text-3xl font-bold mb-2">
+            Painel Administrativo
+            {currentTenant && (
+              <span className="text-primary ml-2">- {currentTenant.name}</span>
+            )}
+          </h1>
+          <p className="text-muted-foreground">
+            {currentTenant 
+              ? `Gerencie eventos, mesas e agendamentos da ${currentTenant.name}`
+              : 'Gerencie eventos, mesas e agendamentos'
+            }
+          </p>
         </div>
 
         {/* Dashboard Cards */}

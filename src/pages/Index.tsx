@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, MapPin } from "lucide-react";
+import { useTenant } from "@/hooks/useTenant";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import EventCard from "@/components/EventCard";
@@ -10,10 +11,12 @@ import eventCorporate from "@/assets/event-corporate.jpg";
 import eventBirthday from "@/assets/event-birthday.jpg";
 
 const Index = () => {
-  // Mock data - será substituído por dados do Supabase
-  const events = [
+  const { currentTenant } = useTenant();
+  // Mock data - será filtrado por tenant no Supabase
+  const allEvents = [
     {
       id: "1",
+      tenantId: "villa-eventos",
       title: "Casamento Elegante - Salon Premium",
       description: "Um evento de casamento dos sonhos com decoração luxuosa, cardápio gourmet e ambientação única para celebrar o amor.",
       date: "15 de Dezembro, 2024",
@@ -27,6 +30,7 @@ const Index = () => {
     },
     {
       id: "2", 
+      tenantId: "centro-convencoes",
       title: "Conferência Tech Innovation 2024",
       description: "Evento corporativo com palestras inspiradoras, networking de qualidade e as últimas tendências em tecnologia e inovação.",
       date: "20 de Dezembro, 2024",
@@ -40,6 +44,7 @@ const Index = () => {
     },
     {
       id: "3",
+      tenantId: "buffet-alegria",
       title: "Festa de Aniversário Temática",
       description: "Celebração especial com decoração personalizada, entretenimento para todas as idades e buffet completo.",
       date: "28 de Dezembro, 2024", 
@@ -50,8 +55,27 @@ const Index = () => {
       price: 75.00,
       image: eventBirthday,
       category: "Aniversário"
+    },
+    {
+      id: "4",
+      tenantId: "villa-eventos",
+      title: "Formatura Medicina UNIFESP",
+      description: "Cerimônia de formatura com jantar de gala, apresentações especiais e celebração inesquecível.",
+      date: "10 de Janeiro, 2025",
+      time: "19:00 - 01:00",
+      location: "Espaço Villa Eventos - São Paulo",
+      capacity: 120,
+      availableSpots: 89,
+      price: 200.00,
+      image: eventWedding,
+      category: "Formatura"
     }
   ];
+
+  // Filtrar eventos pelo tenant atual
+  const events = currentTenant 
+    ? allEvents.filter(event => event.tenantId === currentTenant.id)
+    : allEvents;
 
   const categories = ["Todos", "Casamento", "Corporativo", "Aniversário", "Formatura"];
 
@@ -65,8 +89,15 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4">Encontre o Evento Perfeito</h2>
-              <p className="text-muted-foreground">Descubra experiências únicas e inesquecíveis</p>
+              <h2 className="text-3xl font-bold mb-4">
+                {currentTenant ? `Eventos da ${currentTenant.name}` : 'Encontre o Evento Perfeito'}
+              </h2>
+              <p className="text-muted-foreground">
+                {currentTenant 
+                  ? `Descubra as experiências únicas organizadas pela ${currentTenant.name}`
+                  : 'Descubra experiências únicas e inesquecíveis'
+                }
+              </p>
             </div>
             
             <div className="bg-background rounded-xl p-6 shadow-elegant border-0">
@@ -111,14 +142,30 @@ const Index = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold">Eventos em Destaque</h2>
+            <h2 className="text-3xl font-bold">
+              {currentTenant ? `Eventos da ${currentTenant.name}` : 'Eventos em Destaque'}
+            </h2>
             <Button variant="outline">Ver Todos</Button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <EventCard key={event.id} {...event} />
-            ))}
+            {events.length > 0 ? (
+              events.map((event) => (
+                <EventCard key={event.id} {...event} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground text-lg mb-4">
+                  {currentTenant 
+                    ? `Nenhum evento encontrado para ${currentTenant.name}`
+                    : 'Nenhum evento encontrado'
+                  }
+                </p>
+                <Button variant="outline">
+                  {currentTenant ? 'Criar Primeiro Evento' : 'Selecionar Empresa'}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>

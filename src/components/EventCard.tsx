@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Users, Clock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 interface EventCardProps {
   id: string;
@@ -31,6 +31,9 @@ const EventCard = ({
   image, 
   category 
 }: EventCardProps) => {
+  const { tenantSlug } = useParams();
+  const basePath = tenantSlug ? `/${tenantSlug}` : "";
+
   return (
     <Card className="group hover:shadow-elegant transition-all duration-300 hover:scale-105 bg-gradient-card border-0">
       <CardHeader className="p-0">
@@ -82,8 +85,8 @@ const EventCard = ({
       </CardContent>
       
       <CardFooter className="p-6 pt-0">
-        <Link to={`/evento/${id}`} className="w-full">
-          <Button 
+        <Link to={`${basePath}/evento/${id}`} className="w-full">
+          <Button
             variant="hero" 
             className="w-full"
             disabled={availableSpots === 0}
