@@ -256,10 +256,10 @@ const TableManagement = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link to={`/admin/events/${eventId}`}>
+              <Link to="/admin">
                 <Button variant="ghost" size="sm">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar ao Evento
+                  Voltar ao Dashboard
                 </Button>
               </Link>
               <div className="flex items-center space-x-2">
