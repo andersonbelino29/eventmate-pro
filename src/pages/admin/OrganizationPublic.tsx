@@ -8,6 +8,10 @@ import {
   ArrowRight, Building2, Phone, Mail, Globe
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import EventCard from "@/components/EventCard";
+import eventWedding from "@/assets/event-wedding.jpg";
+import eventCorporate from "@/assets/event-corporate.jpg";
+import eventBirthday from "@/assets/event-birthday.jpg";
 
 // Página pública customizada de cada organização
 const OrganizationPublic = () => {
@@ -20,37 +24,43 @@ const OrganizationPublic = () => {
   // Mock events data
   const events = [
     {
-      id: 1,
-      name: "Casamento dos Sonhos",
-      date: "2024-03-15",
+      id: "1",
+      title: "Casamento dos Sonhos",
+      description: "Um evento de casamento dos sonhos com decoração luxuosa e cardápio gourmet",
+      date: "15 de Dezembro, 2024",
       time: "18:00",
       location: "Salão Principal",
-      price: "R$ 150",
+      price: 150,
       category: "Casamento",
       capacity: 200,
-      image: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=300&fit=crop"
+      availableSpots: 45,
+      image: eventWedding
     },
     {
-      id: 2,
-      name: "Festa Corporativa Tech Summit",
-      date: "2024-03-20",
+      id: "2",
+      title: "Festa Corporativa Tech Summit",
+      description: "Evento corporativo com networking e apresentações tecnológicas",
+      date: "20 de Março, 2024",
       time: "19:00",
       location: "Auditório Premium",
-      price: "R$ 80",
+      price: 80,
       category: "Corporativo",
       capacity: 150,
-      image: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop"
+      availableSpots: 23,
+      image: eventCorporate
     },
     {
-      id: 3,
-      name: "Aniversário de 50 Anos",
-      date: "2024-03-25",
+      id: "3",
+      title: "Aniversário de 50 Anos",
+      description: "Celebração especial com música ao vivo e gastronomia exclusiva",
+      date: "25 de Março, 2024",
       time: "16:00",
       location: "Jardim Encantado",
-      price: "R$ 120",
+      price: 120,
       category: "Aniversário", 
       capacity: 80,
-      image: "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop"
+      availableSpots: 12,
+      image: eventBirthday
     }
   ];
 
@@ -121,50 +131,20 @@ const OrganizationPublic = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {events.map((event) => (
-              <Card key={event.id} className="group cursor-pointer hover:shadow-elegant transition-all duration-300 overflow-hidden">
-                <div className="relative">
-                  <img 
-                    src={event.image} 
-                    alt={event.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <Badge>{event.category}</Badge>
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1">
-                      <span className="font-bold text-primary">{event.price}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <CardHeader>
-                  <CardTitle className="group-hover:text-primary transition-colors">
-                    {event.name}
-                  </CardTitle>
-                  <CardDescription className="space-y-2">
-                    <div className="flex items-center text-sm">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(event.date).toLocaleDateString('pt-BR')} às {event.time}
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {event.location}
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <Users className="h-4 w-4 mr-2" />
-                      Até {event.capacity} pessoas
-                    </div>
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent>
-                  <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    Ver Detalhes & Reservar
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
+              <EventCard
+                key={event.id}
+                id={event.id}
+                title={event.title}
+                description={event.description}
+                date={event.date}
+                time={event.time}
+                location={event.location}
+                capacity={event.capacity}
+                availableSpots={event.availableSpots}
+                price={event.price}
+                image={event.image}
+                category={event.category}
+              />
             ))}
           </div>
         </div>

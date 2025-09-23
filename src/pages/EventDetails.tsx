@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 import eventWedding from "@/assets/event-wedding.jpg";
 
 const EventDetails = () => {
-  const { id } = useParams();
+  const { eventId } = useParams();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
   // Mock data - será substituído por dados do Supabase
@@ -181,14 +181,16 @@ const EventDetails = () => {
                   </div>
                 </div>
 
-                <Button 
-                  variant="gradient" 
-                  className="w-full" 
-                  size="lg"
-                  disabled={!selectedTable}
-                >
-                  Continuar para Pagamento
-                </Button>
+                <Link to={`/evento/${eventId}/reservar`} className="w-full">
+                  <Button 
+                    variant="hero" 
+                    className="w-full" 
+                    size="lg"
+                    disabled={!selectedTable}
+                  >
+                    Continuar para Reserva
+                  </Button>
+                </Link>
 
                 <div className="text-center text-sm text-muted-foreground">
                   <p>Pagamento seguro via PagarMe</p>
