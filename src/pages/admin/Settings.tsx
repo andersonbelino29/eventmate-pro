@@ -3,6 +3,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Building2, Upload, Palette, Save, Eye, ArrowLeft, 
   CheckCircle, Settings as SettingsIcon, CreditCard, 
-  Users, Globe, Shield
+  Users, Globe, Shield, Info, Phone, Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -310,6 +312,154 @@ const Settings = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Páginas Tab */}
+          <TabsContent value="pages" className="space-y-6">
+            {/* Página Sobre */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Info className="h-5 w-5 mr-2" />
+                  Página Sobre
+                </CardTitle>
+                <CardDescription>
+                  Configure o conteúdo da página "Sobre" da sua organização
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={true} />
+                  <Label>Exibir página "Sobre"</Label>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Título</Label>
+                    <Input placeholder="Sobre Nós" defaultValue="Sobre Nós" />
+                  </div>
+                  <div>
+                    <Label>Subtítulo</Label>
+                    <Input placeholder="Nossa História e Missão" defaultValue="Nossa História e Missão" />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Descrição Principal</Label>
+                  <Textarea 
+                    rows={3} 
+                    placeholder="Conte a história da sua empresa..."
+                    defaultValue="Somos uma empresa especializada em criar experiências únicas e memoráveis através de eventos excepcionais."
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nossa Missão</Label>
+                    <Textarea 
+                      rows={2} 
+                      placeholder="Qual é a missão da empresa?"
+                      defaultValue="Criar momentos inesquecíveis que conectam pessoas e celebram a vida."
+                    />
+                  </div>
+                  <div>
+                    <Label>Nossa Visão</Label>
+                    <Textarea 
+                      rows={2} 
+                      placeholder="Qual é a visão da empresa?"
+                      defaultValue="Ser reconhecida como a principal referência em eventos exclusivos e personalizados."
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Nossos Valores (um por linha)</Label>
+                  <Textarea 
+                    rows={3}
+                    placeholder="Excelência em cada detalhe&#10;Compromisso com a qualidade&#10;Inovação constante"
+                    defaultValue="Excelência em cada detalhe&#10;Compromisso com a qualidade&#10;Inovação constante&#10;Atendimento personalizado"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Página Contato */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Phone className="h-5 w-5 mr-2" />
+                  Página Contato
+                </CardTitle>
+                <CardDescription>
+                  Configure as informações de contato da sua organização
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={true} />
+                  <Label>Exibir página "Contato"</Label>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Título da Página</Label>
+                    <Input placeholder="Entre em Contato" defaultValue="Entre em Contato" />
+                  </div>
+                  <div>
+                    <Label>Subtítulo</Label>
+                    <Input placeholder="Estamos aqui para ajudar" defaultValue="Estamos aqui para ajudar você" />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Descrição da Página</Label>
+                  <Textarea 
+                    rows={2}
+                    placeholder="Mensagem de boas-vindas da página de contato"
+                    defaultValue="Tem uma ideia para um evento especial? Entre em contato conosco e vamos transformar sua visão em realidade."
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Telefone Principal</Label>
+                    <Input placeholder="(11) 9999-9999" defaultValue="(11) 9999-9999" />
+                  </div>
+                  <div>
+                    <Label>WhatsApp</Label>
+                    <Input placeholder="(11) 99999-9999" defaultValue="(11) 99999-9999" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Email Principal</Label>
+                    <Input type="email" placeholder="contato@empresa.com" defaultValue="contato@empresa.com" />
+                  </div>
+                  <div>
+                    <Label>Website</Label>
+                    <Input placeholder="www.empresa.com" defaultValue="www.empresa.com" />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Endereço Completo</Label>
+                  <Input 
+                    placeholder="Rua das Flores, 123 - Centro, São Paulo - SP"
+                    defaultValue="Rua das Flores, 123 - Centro, São Paulo - SP"
+                  />
+                </div>
+
+                <div>
+                  <Label>Horário de Funcionamento</Label>
+                  <Textarea 
+                    rows={3}
+                    placeholder="Segunda à Sexta: 09:00 - 18:00&#10;Sábados: 09:00 - 14:00&#10;Domingos: Fechado"
+                    defaultValue="Segunda à Sexta: 09:00 - 18:00&#10;Sábados: 09:00 - 14:00&#10;Domingos: Fechado"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Domain Tab */}

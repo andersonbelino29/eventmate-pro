@@ -15,6 +15,7 @@ import {
   Trash2, Users, MapPin, DollarSign, ArrowLeft, Filter
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const EventList = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -293,10 +294,22 @@ const EventList = () => {
                               </DropdownMenuItem>
                             </Link>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </DropdownMenuItem>
+                            <ConfirmDialog
+                              title="Excluir Evento"
+                              description={`Tem certeza que deseja excluir o evento "${event.name}"? Todas as reservas associadas também serão canceladas e os clientes serão notificados automaticamente.`}
+                              onConfirm={() => {
+                                console.log('Excluindo evento:', event.id);
+                                // TODO: Implementar exclusão real
+                              }}
+                            >
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onSelect={(e) => e.preventDefault()}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </ConfirmDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

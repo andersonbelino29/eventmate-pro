@@ -7,6 +7,7 @@ import {
   Plus, Settings, Eye, Edit, Trash2, Building2
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const Dashboard = () => {
   const { user, organization } = useAuth();
@@ -196,19 +197,18 @@ const Dashboard = () => {
                               <Edit className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            title="Excluir evento"
-                            onClick={() => {
-                              if (confirm('Tem certeza que deseja excluir este evento?')) {
-                                console.log('Excluindo evento:', event.id);
-                                // TODO: Implementar exclusão real
-                              }
+                          <ConfirmDialog
+                            title="Excluir Evento"
+                            description={`Tem certeza que deseja excluir o evento "${event.name}"? Todas as reservas associadas também serão canceladas e os clientes serão notificados.`}
+                            onConfirm={() => {
+                              console.log('Excluindo evento:', event.id);
+                              // TODO: Implementar exclusão real
                             }}
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                            <Button variant="ghost" size="sm" title="Excluir evento">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </ConfirmDialog>
                         </div>
                       </div>
                     </div>

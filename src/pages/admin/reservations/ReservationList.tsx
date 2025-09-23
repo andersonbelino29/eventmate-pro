@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const ReservationList = () => {
   const { toast } = useToast();
@@ -393,13 +394,19 @@ const ReservationList = () => {
                               </DropdownMenuItem>
                             </Link>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              className="text-red-600"
-                              onClick={() => handleDeleteReservation(reservation.id)}
+                            <ConfirmDialog
+                              title="Excluir Reserva"
+                              description={`Tem certeza que deseja excluir a reserva de "${reservation.customerName}" para o evento "${reservation.eventName}"? O cliente será notificado sobre o cancelamento e o reembolso será processado automaticamente.`}
+                              onConfirm={() => handleDeleteReservation(reservation.id)}
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onSelect={(e) => e.preventDefault()}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </ConfirmDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

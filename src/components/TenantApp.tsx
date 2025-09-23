@@ -6,6 +6,7 @@ import EventDetails from "@/pages/EventDetails";
 import EventReservation from "@/pages/EventReservation";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import MyReservations from "@/pages/MyReservations";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
 
@@ -45,6 +46,7 @@ const TenantApp = () => {
             <Route path="/evento/:eventId" element={<EventDetails />} />
         <Route path="/sobre" element={<About />} />
         <Route path="/contato" element={<Contact />} />
+        <Route path="/minhas-reservas" element={<MyReservations />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -75,18 +75,15 @@ const Navbar = () => {
           <div className="flex items-center space-x-3">
             {isPublicPage ? (
               <>
-                <Button variant="ghost" size="sm">
-                  <User className="h-4 w-4 mr-2" />
-                  Entrar
-                </Button>
+                <Link to={`${basePath}/minhas-reservas`}>
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Minhas Reservas
+                  </Button>
+                </Link>
                 <Button variant="gradient" size="sm">
                   Cadastrar
                 </Button>
-                <Link to={`${basePath}/admin`}>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </Link>
                 {!currentTenant && (
                   <Link to="/select-tenant">
                     <Button variant="outline" size="sm">
