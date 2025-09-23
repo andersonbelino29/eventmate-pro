@@ -6,19 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Dialog, DialogContent, DialogDescription, DialogHeader, 
-  DialogTitle, DialogTrigger, DialogFooter
-} from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   Users, ArrowLeft, Plus, Edit, Trash2, Eye, 
-  Package, MapPin, CheckCircle, AlertCircle, Clock,
-  Search, Filter, MoreHorizontal
+  Package, MapPin, CheckCircle, AlertCircle, DollarSign,
+  Search, Filter
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -30,9 +23,6 @@ const ItemManagement = () => {
   const { toast } = useToast();
   const { currentTenant } = useTenant();
   
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -47,16 +37,6 @@ const ItemManagement = () => {
     priceLabel: 'por pessoa'
   };
 
-  // Form states
-  const [formData, setFormData] = useState({
-    name: '',
-    capacity: '',
-    location: '',
-    type: '',
-    price: '',
-    status: 'Disponível'
-  });
-
   // Mock event data
   const event = {
     id: eventId,
@@ -66,7 +46,7 @@ const ItemManagement = () => {
     itemType: itemConfig.type
   };
 
-  // Mock items data based on item type
+  // Mock items data with different prices
   const [items, setItems] = useState(() => {
     switch (itemConfig.type) {
       case 'mesa':
@@ -77,6 +57,18 @@ const ItemManagement = () => {
             capacity: 8,
             location: "Área VIP",
             type: "Mesa Premium",
+            price: 250,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          },
+          {
+            id: 2,
+            name: "Mesa Premium - Vista Jardim",
+            capacity: 6,
+            location: "Área Premium", 
+            type: "Mesa Premium",
             price: 200,
             status: "Reservada",
             customerName: "Maria Silva",
@@ -84,13 +76,37 @@ const ItemManagement = () => {
             reservedAt: "2024-02-01"
           },
           {
-            id: 2,
+            id: 3,
             name: "Mesa Standard - Área Central",
-            capacity: 6,
+            capacity: 10,
             location: "Área Central",
             type: "Mesa Standard",
             price: 150,
             status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          },
+          {
+            id: 4,
+            name: "Mesa Família - Área Infantil",
+            capacity: 4,
+            location: "Área Família",
+            type: "Mesa Família",
+            price: 180,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          },
+          {
+            id: 5,
+            name: "Mesa Executiva - Sala Privada",
+            capacity: 12,
+            location: "Sala Privada",
+            type: "Mesa Premium",
+            price: 300,
+            status: "Manutenção",
             customerName: null,
             customerEmail: null,
             reservedAt: null
@@ -112,11 +128,35 @@ const ItemManagement = () => {
           },
           {
             id: 2,
+            name: "Ingresso Premium",
+            capacity: 1,
+            location: "Área Premium",
+            type: "Premium",
+            price: 180,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          },
+          {
+            id: 3,
             name: "Ingresso Pista",
             capacity: 1,
             location: "Pista",
             type: "Standard",
             price: 120,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          },
+          {
+            id: 4,
+            name: "Ingresso Estudante",
+            capacity: 1,
+            location: "Pista",
+            type: "Estudante",
+            price: 80,
             status: "Disponível",
             customerName: null,
             customerEmail: null,
@@ -127,15 +167,39 @@ const ItemManagement = () => {
         return [
           {
             id: 1,
-            name: "Área VIP Lounge",
+            name: "Lounge VIP Premium",
             capacity: 20,
             location: "Andar Superior",
             type: "Lounge Premium",
-            price: 150,
+            price: 200,
             status: "Disponível",
             customerName: null,
             customerEmail: null,
             reservedAt: null
+          },
+          {
+            id: 2,
+            name: "Área Família",
+            capacity: 15,
+            location: "Jardim",
+            type: "Área Família",
+            price: 120,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          },
+          {
+            id: 3,
+            name: "Camarote Executivo",
+            capacity: 8,
+            location: "Área Central",
+            type: "Camarote",
+            price: 350,
+            status: "Reservada",
+            customerName: "João Santos",
+            customerEmail: "joao@email.com",
+            reservedAt: "2024-02-05"
           }
         ];
       default:
@@ -151,31 +215,22 @@ const ItemManagement = () => {
             customerName: null,
             customerEmail: null,
             reservedAt: null
+          },
+          {
+            id: 2,
+            name: `${itemConfig.singular} Standard`,
+            capacity: 6,
+            location: "Local Secundário",
+            type: "Standard",
+            price: 150,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
           }
         ];
     }
   });
-
-  const getItemTypes = (itemType: string) => {
-    switch (itemType) {
-      case 'mesa':
-        return ["Mesa Premium", "Mesa Standard", "Mesa VIP", "Mesa Família"];
-      case 'ingresso':
-        return ["VIP", "Premium", "Standard", "Estudante"];
-      case 'area':
-        return ["Lounge Premium", "Área Família", "Camarote", "Área Geral"];
-      case 'servico':
-        return ["Premium", "Standard", "Básico", "Personalizado"];
-      case 'produto':
-        return ["Premium", "Standard", "Econômico"];
-      default:
-        return ["Premium", "Standard", "Básico"];
-    }
-  };
-
-  const itemTypes = getItemTypes(itemConfig.type);
-  const locations = ["Área Central", "Área VIP", "Área Jardim", "Área Lateral", "Área Geral"];
-  const statuses = ["Disponível", "Reservada", "Manutenção", "Bloqueada"];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -192,101 +247,12 @@ const ItemManagement = () => {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      capacity: '',
-      location: '',
-      type: '',
-      price: '',
-      status: 'Disponível'
-    });
-  };
-
-  const handleCreateItem = async () => {
-    if (!formData.name || !formData.capacity || !formData.location || !formData.type || !formData.price) {
-      toast({
-        title: "Erro na validação",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const newItem = {
-      id: items.length + 1,
-      name: formData.name,
-      capacity: parseInt(formData.capacity),
-      location: formData.location,
-      type: formData.type,
-      price: parseFloat(formData.price),
-      status: formData.status,
-      customerName: null,
-      customerEmail: null,
-      reservedAt: null
-    };
-
-    setItems(prev => [...prev, newItem]);
-    setIsCreateModalOpen(false);
-    resetForm();
-
-    toast({
-      title: "Item criado!",
-      description: `${formData.name} foi criado com sucesso.`,
-    });
-  };
-
-  const handleEditItem = async () => {
-    if (!selectedItem) return;
-
-    const updatedItems = items.map(item => 
-      item.id === selectedItem.id 
-        ? { 
-            ...item, 
-            name: formData.name,
-            capacity: parseInt(formData.capacity),
-            location: formData.location,
-            type: formData.type,
-            price: parseFloat(formData.price),
-            status: formData.status
-          }
-        : item
-    );
-
-    setItems(updatedItems);
-    setIsEditModalOpen(false);
-    setSelectedItem(null);
-    resetForm();
-
-    toast({
-      title: "Item atualizado!",
-      description: `${formData.name} foi atualizado com sucesso.`,
-    });
-  };
-
   const handleDeleteItem = (itemId: number) => {
     setItems(prev => prev.filter(item => item.id !== itemId));
     toast({
       title: "Item excluído!",
       description: "O item foi removido com sucesso.",
     });
-  };
-
-  const openEditModal = (item: any) => {
-    setSelectedItem(item);
-    setFormData({
-      name: item.name,
-      capacity: item.capacity.toString(),
-      location: item.location,
-      type: item.type,
-      price: item.price.toString(),
-      status: item.status
-    });
-    setIsEditModalOpen(true);
   };
 
   const filteredItems = items.filter(item => {
@@ -397,15 +363,9 @@ const ItemManagement = () => {
           </Card>
         </div>
 
-        {/* Filters */}
+        {/* Filters and Search */}
         <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filtros</CardTitle>
-            <CardDescription>
-              Encontre {itemConfig.plural.toLowerCase()} específicas usando os filtros abaixo
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
@@ -419,17 +379,21 @@ const ItemManagement = () => {
                 </div>
               </div>
               
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Status</SelectItem>
-                  {statuses.map((status) => (
-                    <SelectItem key={status} value={status}>{status}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-40">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos Status</SelectItem>
+                    <SelectItem value="Disponível">Disponível</SelectItem>
+                    <SelectItem value="Reservada">Reservada</SelectItem>
+                    <SelectItem value="Manutenção">Manutenção</SelectItem>
+                    <SelectItem value="Bloqueada">Bloqueada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -437,218 +401,249 @@ const ItemManagement = () => {
         {/* Items List */}
         <Card>
           <CardHeader>
-            <CardTitle>Lista de {itemConfig.plural} ({filteredItems.length})</CardTitle>
-            <CardDescription>
-              Gerencie todos os itens do evento
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Lista de {itemConfig.plural}</CardTitle>
+                <CardDescription>
+                  Gerencie os {itemConfig.plural.toLowerCase()} disponíveis para este evento
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Link to={`/admin/events/${eventId}/items/new`}>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nova {itemConfig.singular}
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Item</TableHead>
-                    <TableHead>Capacidade</TableHead>
-                    <TableHead>Localização</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Preço</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {itemsPagination.paginatedData.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">
-                        <div className="flex flex-col items-center justify-center text-muted-foreground">
-                          <Package className="h-12 w-12 mb-4" />
-                          <p className="text-lg font-medium">Nenhum item encontrado</p>
-                          <p className="text-sm">Tente ajustar os filtros ou criar um novo item</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    itemsPagination.paginatedData.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{item.name}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Users className="h-4 w-4 mr-1 text-muted-foreground" />
-                            {item.capacity}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
-                            {item.location}
-                          </div>
-                        </TableCell>
-                        <TableCell>{item.type}</TableCell>
-                        <TableCell>R$ {item.price}</TableCell>
-                        <TableCell>{getStatusBadge(item.status)}</TableCell>
-                        <TableCell>
-                          {item.customerName ? (
+            {filteredItems.length > 0 ? (
+              <div className="space-y-4">
+                {/* Desktop Table */}
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        {itemConfig.requiresLocation && <TableHead>Localização</TableHead>}
+                        {itemConfig.requiresCapacity && <TableHead>Capacidade</TableHead>}
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Preço</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {itemsPagination.paginatedData.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>
                             <div>
-                              <div className="font-medium">{item.customerName}</div>
-                              <div className="text-sm text-muted-foreground">{item.customerEmail}</div>
+                              <div className="font-medium">{item.name}</div>
+                              {item.customerName && (
+                                <div className="text-sm text-muted-foreground">
+                                  Reservado por: {item.customerName}
+                                </div>
+                              )}
                             </div>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
+                          </TableCell>
+                          {itemConfig.requiresLocation && (
+                            <TableCell>
+                              <div className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
+                                {item.location}
+                              </div>
+                            </TableCell>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openEditModal(item)}
-                            >
+                          {itemConfig.requiresCapacity && (
+                            <TableCell>
+                              <div className="flex items-center">
+                                <Users className="h-4 w-4 mr-1 text-muted-foreground" />
+                                {item.capacity} {itemConfig.capacityLabel}
+                              </div>
+                            </TableCell>
+                          )}
+                          <TableCell>
+                            <Badge variant="outline">{item.type}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-semibold text-green-600">
+                              R$ {item.price.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {itemConfig.priceLabel}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(item.status)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => console.log('Ver item:', item.id)}
+                                title="Ver detalhes"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Link to={`/admin/events/${eventId}/items/${item.id}/edit`}>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  title="Editar item"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteItem(item.id)}
+                                title="Excluir item"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden space-y-4">
+                  {itemsPagination.paginatedData.map((item) => (
+                    <Card key={item.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{item.name}</h3>
+                            <p className="text-sm text-muted-foreground">{item.type}</p>
+                          </div>
+                          {getStatusBadge(item.status)}
+                        </div>
+                        
+                        <div className="space-y-2 mb-4">
+                          {itemConfig.requiresLocation && (
+                            <div className="flex items-center text-sm">
+                              <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                              {item.location}
+                            </div>
+                          )}
+                          {itemConfig.requiresCapacity && (
+                            <div className="flex items-center text-sm">
+                              <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                              {item.capacity} {itemConfig.capacityLabel}
+                            </div>
+                          )}
+                          <div className="flex items-center text-sm font-semibold text-green-600">
+                            <DollarSign className="h-4 w-4 mr-2 text-muted-foreground" />
+                            R$ {item.price.toFixed(2)} {itemConfig.priceLabel}
+                          </div>
+                          {item.customerName && (
+                            <div className="text-sm text-muted-foreground">
+                              Reservado por: {item.customerName}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => console.log('Ver item:', item.id)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Link to={`/admin/events/${eventId}/items/${item.id}/edit`}>
+                            <Button variant="ghost" size="sm">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteItem(item.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            
-            {filteredItems.length > 0 && (
-              <div className="mt-4">
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteItem(item.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Pagination */}
                 <CustomPagination
                   currentPage={itemsPagination.currentPage}
                   totalPages={itemsPagination.totalPages}
-                  canGoPrevious={itemsPagination.currentPage > 1}
-                  canGoNext={itemsPagination.currentPage < itemsPagination.totalPages}
+                  onPageChange={itemsPagination.goToPage}
+                  canGoPrevious={itemsPagination.canGoPrevious}
+                  canGoNext={itemsPagination.canGoNext}
                   startIndex={itemsPagination.startIndex}
                   endIndex={itemsPagination.endIndex}
-                  totalItems={filteredItems.length}
-                  onPageChange={itemsPagination.goToPage}
+                  totalItems={itemsPagination.totalItems}
                 />
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  Nenhuma {itemConfig.singular.toLowerCase()} encontrada
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchQuery || statusFilter !== 'all' 
+                    ? `Não há ${itemConfig.plural.toLowerCase()} que correspondam aos filtros aplicados.`
+                    : `Comece criando sua primeira ${itemConfig.singular.toLowerCase()} para este evento.`
+                  }
+                </p>
+                <Link to={`/admin/events/${eventId}/items/new`}>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar Primeira {itemConfig.singular}
+                  </Button>
+                </Link>
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Quick Stats Summary */}
+        {filteredItems.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Resumo de Preços</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    R$ {Math.min(...items.map(item => item.price)).toFixed(2)}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Menor preço</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    R$ {(items.reduce((sum, item) => sum + item.price, 0) / items.length).toFixed(2)}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Preço médio</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    R$ {Math.max(...items.map(item => item.price)).toFixed(2)}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Maior preço</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Item</DialogTitle>
-            <DialogDescription>
-              Atualize as informações do item
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Nome do Item *</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Ex: Mesa VIP - Frente do Palco"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-capacity">Capacidade *</Label>
-                <Input
-                  id="edit-capacity"
-                  type="number"
-                  value={formData.capacity}
-                  onChange={(e) => handleInputChange('capacity', e.target.value)}
-                  placeholder="8"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-price">Preço por Pessoa (R$) *</Label>
-                <Input
-                  id="edit-price"
-                  type="number"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', e.target.value)}
-                  placeholder="200.00"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-location">Localização *</Label>
-              <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a área" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locations.map((location) => (
-                    <SelectItem key={location} value={location}>
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        {location}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-type">Tipo do Item *</Label>
-              <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {itemTypes.map((type) => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {statuses.map((status) => (
-                    <SelectItem key={status} value={status}>{status}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleEditItem}>
-              Atualizar Item
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
