@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, User, Settings, Building2 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Calendar, User, Settings, Building2, ArrowLeft } from "lucide-react";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { useTenant } from "@/hooks/useTenant";
 
 const Navbar = () => {
   const { currentTenant } = useTenant();
   const { tenantSlug } = useParams();
+  const location = useLocation();
   
   const basePath = tenantSlug ? `/${tenantSlug}` : "";
+  const isPublicPage = !location.pathname.includes('/admin');
+  
   return (
     <nav className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -48,38 +51,63 @@ const Navbar = () => {
             )}
           </Link>
           
-          <div className="hidden md:flex items-center space-x-6">
-            <Link to={basePath || "/"} className="text-foreground hover:text-primary transition-colors">
-              Eventos
-            </Link>
-            <Link to={`${basePath}/about`} className="text-foreground hover:text-primary transition-colors">
-              Sobre
-            </Link>
-            <Link to={`${basePath}/contact`} className="text-foreground hover:text-primary transition-colors">
-              Contato
-            </Link>
-          </div>
+          {/* Navegação pública */}
+          {isPublicPage && currentTenant && (
+            <div className="hidden md:flex items-center space-x-6">
+              <Link to={basePath} className="text-foreground hover:text-primary transition-colors">
+                Eventos
+              </Link>
+              
+              {currentTenant.aboutPage?.visible && (
+                <Link to={`${basePath}/sobre`} className="text-foreground hover:text-primary transition-colors">
+                  Sobre
+                </Link>
+              )}
+              
+              {currentTenant.contactPage?.visible && (
+                <Link to={`${basePath}/contato`} className="text-foreground hover:text-primary transition-colors">
+                  Contato
+                </Link>
+              )}
+            </div>
+          )}
           
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm">
-              <User className="h-4 w-4 mr-2" />
-              Entrar
-            </Button>
-            <Button variant="gradient" size="sm">
-              Cadastrar
-            </Button>
-            <Link to={`${basePath}/admin`}>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </Link>
-            {!currentTenant && (
-              <Link to="/select-tenant">
-                <Button variant="outline" size="sm">
-                  <Building2 className="h-4 w-4 mr-2" />
-                  Trocar Empresa
+            {isPublicPage ? (
+              <>
+                <Button variant="ghost" size="sm">
+                  <User className="h-4 w-4 mr-2" />
+                  Entrar
                 </Button>
-              </Link>
+                <Button variant="gradient" size="sm">
+                  Cadastrar
+                </Button>
+                <Link to={`${basePath}/admin`}>
+                  <Button variant="ghost" size="icon">
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </Link>
+                {!currentTenant && (
+                  <Link to="/select-tenant">
+                    <Button variant="outline" size="sm">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      Trocar Empresa
+                    </Button>
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <Link to={basePath}>
+                  <Button variant="outline" size="sm">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Site Público
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm">
+                  <User className="h-4 w-4" />
+                </Button>
+              </>
             )}
           </div>
         </div>

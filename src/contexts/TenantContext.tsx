@@ -8,6 +8,34 @@ export interface Tenant {
   primaryColor?: string;
   secondaryColor?: string;
   customDomain?: string;
+  aboutPage?: {
+    visible: boolean;
+    title: string;
+    subtitle: string;
+    description: string;
+    mission: string;
+    vision: string;
+    values: string[];
+    stats: Array<{ label: string; value: string }>;
+    team: Array<{ name: string; role: string; description: string }>;
+  };
+  contactPage?: {
+    visible: boolean;
+    title: string;
+    subtitle: string;
+    description: string;
+    address: string;
+    phone: string;
+    email: string;
+    whatsapp: string;
+    website: string;
+    businessHours: Array<{ day: string; time: string }>;
+    socialMedia: {
+      instagram?: string;
+      facebook?: string;
+      linkedin?: string;
+    };
+  };
 }
 
 interface TenantContextType {
@@ -43,7 +71,65 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       subdomain: 'villa',
       logo: 'https://images.unsplash.com/photo-1519167758481-83f29c8ae8a4?w=200&h=200&fit=crop&crop=center',
       primaryColor: '263 70% 50%',
-      secondaryColor: '280 70% 60%'
+      secondaryColor: '280 70% 60%',
+      aboutPage: {
+        visible: true,
+        title: "Sobre a Villa Eventos",
+        subtitle: "Criando momentos únicos desde 2010",
+        description: "A Villa Eventos nasceu da paixão por criar experiências inesquecíveis. Especializados em casamentos, eventos corporativos e celebrações especiais.",
+        mission: "Transformar sonhos em realidade através de eventos únicos e memoráveis.",
+        vision: "Ser a referência em eventos personalizados e exclusivos no Brasil.",
+        values: [
+          "Excelência em cada detalhe",
+          "Compromisso com a qualidade",
+          "Inovação e criatividade",
+          "Atendimento personalizado"
+        ],
+        stats: [
+          { label: "Anos de Experiência", value: "13+" },
+          { label: "Eventos Realizados", value: "800+" },
+          { label: "Clientes Satisfeitos", value: "3000+" },
+          { label: "Avaliação Média", value: "4.9" }
+        ],
+        team: [
+          {
+            name: "Isabella Villa",
+            role: "Founder & CEO",
+            description: "Especialista em eventos de luxo com mais de 15 anos de experiência internacional."
+          },
+          {
+            name: "Roberto Santos",
+            role: "Diretor Criativo",
+            description: "Expert em design de experiências e ambientações únicas para cada ocasião."
+          },
+          {
+            name: "Fernanda Lima",
+            role: "Gerente de Eventos",
+            description: "Coordenação impecável e atenção aos detalhes em cada projeto realizado."
+          }
+        ]
+      },
+      contactPage: {
+        visible: true,
+        title: "Entre em Contato",
+        subtitle: "Vamos planejar algo incrível juntos",
+        description: "Estamos prontos para transformar sua visão em um evento extraordinário. Entre em contato e descubra como podemos criar algo especial para você.",
+        address: "Av. Paulista, 1000 - Bela Vista, São Paulo - SP",
+        phone: "(11) 3456-7890",
+        email: "contato@villaeventos.com",
+        whatsapp: "(11) 99876-5432",
+        website: "www.villaeventos.com",
+        businessHours: [
+          { day: "Segunda à Sexta", time: "09:00 - 19:00" },
+          { day: "Sábados", time: "09:00 - 15:00" },
+          { day: "Domingos", time: "Sob agendamento" }
+        ],
+        socialMedia: {
+          instagram: "@villaeventos",
+          facebook: "villa.eventos.oficial",
+          linkedin: "villa-eventos"
+        }
+      }
     },
     {
       id: 'buffet-alegria',
@@ -51,7 +137,64 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       subdomain: 'alegria',
       logo: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop&crop=center',
       primaryColor: '120 70% 50%',
-      secondaryColor: '140 70% 60%'
+      secondaryColor: '140 70% 60%',
+      aboutPage: {
+        visible: true,
+        title: "Sobre o Buffet Alegria",
+        subtitle: "Tradição e sabor em cada evento",
+        description: "Com mais de 20 anos no mercado, o Buffet Alegria é sinônimo de qualidade gastronômica e atendimento excepcional em eventos.",
+        mission: "Proporcionar experiências gastronômicas memoráveis com excelência em cada detalhe.",
+        vision: "Ser reconhecido como o melhor buffet da região em qualidade e inovação culinária.",
+        values: [
+          "Qualidade dos ingredientes",
+          "Tradição familiar",
+          "Inovação gastronômica",
+          "Sustentabilidade"
+        ],
+        stats: [
+          { label: "Anos de Tradição", value: "20+" },
+          { label: "Eventos Atendidos", value: "1500+" },
+          { label: "Pratos no Cardápio", value: "200+" },
+          { label: "Satisfação Cliente", value: "98%" }
+        ],
+        team: [
+          {
+            name: "Chef Marco Alegria",
+            role: "Chef Executivo",
+            description: "Especialista em culinária brasileira e internacional, formado na Le Cordon Bleu."
+          },
+          {
+            name: "Sofia Oliveira",
+            role: "Gerente de Eventos",
+            description: "Mais de 10 anos coordenando eventos de todos os tamanhos e estilos."
+          },
+          {
+            name: "André Costa",
+            role: "Sommelier",
+            description: "Especialista em harmonização e seleção de vinhos para cada ocasião."
+          }
+        ]
+      },
+      contactPage: {
+        visible: true,
+        title: "Fale Conosco",
+        subtitle: "Sabor e qualidade ao seu alcance",
+        description: "Entre em contato conosco e descubra como podemos tornar seu evento ainda mais saboroso e especial.",
+        address: "Rua das Palmeiras, 456 - Vila Madalena, São Paulo - SP",
+        phone: "(11) 2345-6789",
+        email: "contato@buffetalegria.com.br",
+        whatsapp: "(11) 98765-4321",
+        website: "www.buffetalegria.com.br",
+        businessHours: [
+          { day: "Terça à Sexta", time: "10:00 - 18:00" },
+          { day: "Sábados", time: "08:00 - 16:00" },
+          { day: "Domingos e Segundas", time: "Fechado" }
+        ],
+        socialMedia: {
+          instagram: "@buffetalegria",
+          facebook: "buffet.alegria.oficial"
+        }
+      }
     },
     {
       id: 'centro-convencoes',

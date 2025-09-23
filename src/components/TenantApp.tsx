@@ -4,6 +4,8 @@ import { useTenant } from "@/hooks/useTenant";
 import OrganizationPublic from "@/pages/admin/OrganizationPublic";
 import EventDetails from "@/pages/EventDetails";
 import EventReservation from "@/pages/EventReservation";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
 import Navbar from "./Navbar";
@@ -43,7 +45,8 @@ const TenantApp = () => {
           <Routes>
             <Route path="/" element={<OrganizationPublic />} />
             <Route path="/evento/:eventId" element={<EventDetails />} />
-            <Route path="/evento/:eventId/reservar" element={<EventReservation />} />
+        <Route path="/sobre" element={<About />} />
+        <Route path="/contato" element={<Contact />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

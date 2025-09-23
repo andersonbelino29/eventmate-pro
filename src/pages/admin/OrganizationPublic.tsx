@@ -268,18 +268,26 @@ const OrganizationPublic = () => {
               © 2024 {orgData?.name}. Todos os direitos reservados.
             </p>
             <div className="flex items-center justify-center space-x-4 mt-4">
-              <Button variant="ghost" size="sm">
-                <Phone className="h-4 w-4 mr-2" />
-                Telefone
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Mail className="h-4 w-4 mr-2" />
-                Email
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Globe className="h-4 w-4 mr-2" />
-                Website
-              </Button>
+              <Link to="/contato">
+                <Button variant="ghost" size="sm">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Telefone
+                </Button>
+              </Link>
+              <Link to="/contato">
+                <Button variant="ghost" size="sm">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email
+                </Button>
+              </Link>
+              {(orgData as any)?.aboutPage?.visible && (
+                <Link to="/sobre">
+                  <Button variant="ghost" size="sm">
+                    <Globe className="h-4 w-4 mr-2" />
+                    Sobre Nós
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
