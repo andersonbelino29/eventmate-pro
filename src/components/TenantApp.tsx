@@ -3,6 +3,7 @@ import { Routes, Route, useParams, Navigate } from "react-router-dom";
 import { useTenant } from "@/hooks/useTenant";
 import OrganizationPublic from "@/pages/admin/OrganizationPublic";
 import EventDetails from "@/pages/EventDetails";
+import EventReservation from "@/pages/EventReservation";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
 import Navbar from "./Navbar";
@@ -39,12 +40,13 @@ const TenantApp = () => {
   return (
     <div>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<OrganizationPublic />} />
-        <Route path="/evento/:id" element={<EventDetails />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Routes>
+            <Route path="/" element={<OrganizationPublic />} />
+            <Route path="/evento/:eventId" element={<EventDetails />} />
+            <Route path="/evento/:eventId/reservar" element={<EventReservation />} />
+            <Route path="/admin/*" element={<Admin />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
     </div>
   );
 };

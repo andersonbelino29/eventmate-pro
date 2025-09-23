@@ -221,14 +221,21 @@ const Dashboard = () => {
                   </Button>
                 </Link>
                 
-                <Link to="/admin/tables" className="block">
+                <Link to="/admin/events" className="block">
                   <Button variant="outline" className="w-full justify-start">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Gerenciar Mesas
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Gerenciar Eventos
                   </Button>
                 </Link>
                 
-                <Link to="/admin/analytics" className="block">
+                <Link to="/admin/reservations" className="block">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Users className="h-4 w-4 mr-2" />
+                    Gerenciar Reservas
+                  </Button>
+                </Link>
+                
+                <Link to="/admin/reports" className="block">
                   <Button variant="outline" className="w-full justify-start">
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Ver Relatórios

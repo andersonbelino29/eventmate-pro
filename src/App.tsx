@@ -16,6 +16,8 @@ import EventForm from "./pages/admin/events/EventForm";
 import EventView from "./pages/admin/events/EventView";
 import TableManagement from "./pages/admin/tables/TableManagement";
 import Reports from "./pages/admin/Reports";
+import ReservationList from "./pages/admin/reservations/ReservationList";
+import ReservationForm from "./pages/admin/reservations/ReservationForm";
 import EventReservation from "./pages/EventReservation";
 import TenantSelector from "./components/TenantSelector";
 import TenantApp from "./components/TenantApp";
@@ -96,6 +98,38 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="admin">
                     <Reports />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/reservations" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <ReservationList />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/reservations/new" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <ReservationForm />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/reservations/:id" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <ReservationForm />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/reservations/:id/edit" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <ReservationForm />
                   </ProtectedRoute>
                 } 
               />
