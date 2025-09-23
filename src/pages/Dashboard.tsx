@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Calendar, Users, TrendingUp, DollarSign, BarChart3, 
-  Plus, Settings, Eye, Edit, Trash2, Building2
+  Plus, Settings, Eye, Edit, Trash2, Building2, Table, Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -246,6 +246,20 @@ const Dashboard = () => {
                   <Button variant="outline" className="w-full justify-start">
                     <Users className="h-4 w-4 mr-2" />
                     Gerenciar Reservas
+                  </Button>
+                </Link>
+                
+                <Link to="/admin/tables/1" className="block">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Table className="h-4 w-4 mr-2" />
+                    Gerenciar Mesas
+                  </Button>
+                </Link>
+                
+                <Link to="/admin/contact-messages" className="block">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Ver Solicitações de Contato
                   </Button>
                 </Link>
                 
