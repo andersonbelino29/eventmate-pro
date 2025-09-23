@@ -475,23 +475,154 @@ const EventForm = () => {
                   <Separator />
 
                   <div className="space-y-2">
-                    <Label htmlFor="pricePerPerson">Preço por Pessoa (R$) *</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="pricePerPerson"
-                        type="number"
-                        step="0.01"
-                        value={formData.pricePerPerson}
-                        onChange={(e) => handleInputChange('pricePerPerson', e.target.value)}
-                        placeholder="150.00"
-                        className={`pl-10 ${errors.pricePerPerson ? 'border-red-500' : ''}`}
-                      />
-                    </div>
-                    {errors.pricePerPerson && (
-                      <p className="text-sm text-red-500">{errors.pricePerPerson}</p>
-                    )}
+                    <Label>Tipo de Cobrança *</Label>
+                    <Select 
+                      value={formData.pricingType} 
+                      onValueChange={(value) => handleInputChange('pricingType', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de cobrança" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="per_person">
+                          <div>
+                            <div className="font-medium">Por Pessoa</div>
+                            <div className="text-xs text-muted-foreground">
+                              Preço fixo por pessoa
+                            </div>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="per_table">
+                          <div>
+                            <div className="font-medium">Por Mesa</div>
+                            <div className="text-xs text-muted-foreground">
+                              Preços diferenciados por mesa
+                            </div>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+
+                  {formData.pricingType === 'per_person' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="pricePerPerson">Preço por Pessoa (R$) *</Label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="pricePerPerson"
+                          type="number"
+                          step="0.01"
+                          value={formData.pricePerPerson}
+                          onChange={(e) => handleInputChange('pricePerPerson', e.target.value)}
+                          placeholder="150.00"
+                          className={`pl-10 ${errors.pricePerPerson ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                      {errors.pricePerPerson && (
+                        <p className="text-sm text-red-500">{errors.pricePerPerson}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {formData.pricingType === 'per_table' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Configuração de Mesas</Label>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const newTable = {
+                              id: Date.now().toString(),
+                              name: `Mesa ${formData.tables.length + 1}`,
+                              seats: 8,
+                              price: 150,
+                              available: 1
+                            };
+                            setFormData(prev => ({
+                              ...prev,
+                              tables: [...prev.tables, newTable]
+                            }));
+                          }}
+                        >
+                          Adicionar Mesa
+                        </Button>
+                      </div>
+                      
+                      {formData.tables.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground">
+                          <p>Nenhuma mesa configurada</p>
+                          <p className="text-sm">Adicione mesas para definir preços diferenciados</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
+                          {formData.tables.map((table, index) => (
+                            <div key={table.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                              <div className="flex-1 grid grid-cols-3 gap-2 text-sm">
+                                <div>
+                                  <Label className="text-xs">Nome</Label>
+                                  <Input
+                                    value={table.name}
+                                    onChange={(e) => {
+                                      const newTables = [...formData.tables];
+                                      newTables[index].name = e.target.value;
+                                      setFormData(prev => ({ ...prev, tables: newTables }));
+                                    }}
+                                    className="h-8"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs">Lugares</Label>
+                                  <Input
+                                    type="number"
+                                    value={table.seats}
+                                    onChange={(e) => {
+                                      const newTables = [...formData.tables];
+                                      newTables[index].seats = parseInt(e.target.value) || 0;
+                                      setFormData(prev => ({ ...prev, tables: newTables }));
+                                    }}
+                                    className="h-8"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs">Preço (R$)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    value={table.price}
+                                    onChange={(e) => {
+                                      const newTables = [...formData.tables];
+                                      newTables[index].price = parseFloat(e.target.value) || 0;
+                                      setFormData(prev => ({ ...prev, tables: newTables }));
+                                    }}
+                                    className="h-8"
+                                  />
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newTables = formData.tables.filter((_, i) => i !== index);
+                                  setFormData(prev => ({ ...prev, tables: newTables }));
+                                }}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {errors.tables && (
+                        <p className="text-sm text-red-500">{errors.tables}</p>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
