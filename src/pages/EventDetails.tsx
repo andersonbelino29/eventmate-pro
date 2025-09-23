@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,19 @@ import eventWedding from "@/assets/event-wedding.jpg";
 
 const EventDetails = () => {
   const { eventId } = useParams();
+  const { currentTenant } = useTenant();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
 
   // Mock data - será substituído por dados do Supabase
   const event = {
@@ -38,12 +51,35 @@ const EventDetails = () => {
     ]
   };
 
-  const tables = [
-    { id: "1", name: "Mesa VIP - Frente do Palco", capacity: 8, price: 200, available: 2 },
-    { id: "2", name: "Mesa Premium - Vista Jardim", capacity: 8, price: 180, available: 5 },
-    { id: "3", name: "Mesa Standard - Salão Principal", capacity: 8, price: 150, available: 12 },
-    { id: "4", name: "Mesa Família - Área Infantil", capacity: 10, price: 170, available: 3 },
-  ];
+  // Dynamic tables/items based on tenant configuration
+  const tables = (() => {
+    switch (itemConfig.type) {
+      case 'mesa':
+        return [
+          { id: "1", name: "Mesa VIP - Frente do Palco", capacity: 8, price: 200, available: 2 },
+          { id: "2", name: "Mesa Premium - Vista Jardim", capacity: 8, price: 180, available: 5 },
+          { id: "3", name: "Mesa Standard - Salão Principal", capacity: 8, price: 150, available: 12 },
+          { id: "4", name: "Mesa Família - Área Infantil", capacity: 10, price: 170, available: 3 },
+        ];
+      case 'ingresso':
+        return [
+          { id: "1", name: "Ingresso VIP", capacity: 1, price: 250, available: 50 },
+          { id: "2", name: "Ingresso Premium", capacity: 1, price: 180, available: 155 },
+          { id: "3", name: "Ingresso Standard", capacity: 1, price: 120, available: 411 },
+          { id: "4", name: "Ingresso Estudante", capacity: 1, price: 80, available: 77 },
+        ];
+      case 'area':
+        return [
+          { id: "1", name: "Lounge VIP Premium", capacity: 20, price: 200, available: 2 },
+          { id: "2", name: "Área Família", capacity: 15, price: 120, available: 3 },
+          { id: "3", name: "Camarote Executivo", capacity: 8, price: 350, available: 0 },
+        ];
+      default:
+        return [
+          { id: "1", name: `${itemConfig.singular} Premium`, capacity: 8, price: 200, available: 5 }
+        ];
+    }
+  })();
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,15 +180,20 @@ const EventDetails = () => {
           <div className="lg:col-span-1">
             <Card className="sticky top-24 bg-gradient-card border-0 shadow-elegant">
               <CardHeader>
-                <CardTitle className="text-center">Selecione sua Mesa</CardTitle>
+                <CardTitle className="text-center">
+                  Selecione {itemConfig.type === 'ingresso' ? 'seu' : 'sua'} {itemConfig.singular}
+                </CardTitle>
                 <div className="text-center text-sm text-muted-foreground">
-                  Preços diferenciados por mesa
+                  {itemConfig.type === 'mesa' ? 'Preços diferenciados por mesa' :
+                   itemConfig.type === 'ingresso' ? 'Diferentes tipos de ingressos' :
+                   itemConfig.type === 'area' ? 'Preços diferenciados por área' :
+                   'Preços diferenciados'}
                 </div>
               </CardHeader>
               
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-3">Opções de Mesa</h3>
+                  <h3 className="font-semibold mb-3">Opções de {itemConfig.plural}</h3>
                   <div className="space-y-2">
                     {tables.map((table) => (
                       <div
@@ -168,7 +209,9 @@ const EventDetails = () => {
                           <div>
                             <div className="font-medium">{table.name}</div>
                             <div className="text-sm text-muted-foreground">
-                              {table.capacity} pessoas • R$ {table.price * table.capacity} total
+                              {itemConfig.requiresCapacity && `${table.capacity} ${itemConfig.capacityLabel} • `}
+                              R$ {itemConfig.type === 'mesa' ? table.price * table.capacity : table.price} 
+                              {itemConfig.type === 'mesa' ? ' total' : itemConfig.type === 'ingresso' ? ' por ingresso' : ' por pessoa'}
                             </div>
                           </div>
                           <Badge variant="outline" className="text-xs">
@@ -187,7 +230,7 @@ const EventDetails = () => {
                     size="lg"
                     disabled={!selectedTable}
                   >
-                    Continuar para Reserva
+                    {itemConfig.type === 'ingresso' ? 'Comprar Ingresso' : 'Continuar para Reserva'}
                   </Button>
                 </Link>
 
