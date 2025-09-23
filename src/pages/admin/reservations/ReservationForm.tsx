@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTenant } from '@/contexts/TenantContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +21,19 @@ const ReservationForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { currentTenant } = useTenant();
   const isEditing = !!id;
+
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
 
   // Form states
   const [formData, setFormData] = useState({
@@ -28,13 +41,13 @@ const ReservationForm = () => {
     customerEmail: isEditing ? 'maria@email.com' : '',
     customerPhone: isEditing ? '(11) 99999-9999' : '',
     eventId: isEditing ? '1' : '',
-    tableId: isEditing ? '5' : '',
-    seats: isEditing ? '8' : '',
+    itemId: isEditing ? '5' : '',
+    quantity: isEditing ? '8' : '',
     totalValue: isEditing ? '1200' : '',
     status: isEditing ? 'Confirmado' : 'Pendente',
     paymentStatus: isEditing ? 'Pago' : 'Pendente',
     paymentMethod: isEditing ? 'Cartão de Crédito' : '',
-    observations: isEditing ? 'Mesa próxima ao palco' : ''
+    observations: isEditing ? `${itemConfig.singular} próxima ao palco` : ''
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -47,13 +60,37 @@ const ReservationForm = () => {
     { id: '3', name: 'Aniversário 50 Anos', date: '2024-03-25', price: 120 }
   ];
 
-  const tables = [
-    { id: '1', number: 1, seats: 8, price: 1200, status: 'Reservada' },
-    { id: '2', number: 2, seats: 6, price: 900, status: 'Disponível' },
-    { id: '3', number: 3, seats: 10, price: 1500, status: 'Disponível' },
-    { id: '4', number: 4, seats: 4, price: 600, status: 'Disponível' },
-    { id: '5', number: 5, seats: 8, price: 1200, status: 'Reservada' }
-  ];
+  // Dynamic items based on tenant config
+  const items = (() => {
+    switch (itemConfig.type) {
+      case 'mesa':
+        return [
+          { id: '1', name: 'Mesa VIP', capacity: 8, price: 1200, status: 'Reservada' },
+          { id: '2', name: 'Mesa Premium', capacity: 6, price: 900, status: 'Disponível' },
+          { id: '3', name: 'Mesa Standard', capacity: 10, price: 1500, status: 'Disponível' },
+          { id: '4', name: 'Mesa Família', capacity: 4, price: 600, status: 'Disponível' },
+          { id: '5', name: 'Mesa Executiva', capacity: 8, price: 1200, status: 'Reservada' }
+        ];
+      case 'ingresso':
+        return [
+          { id: '1', name: 'Ingresso VIP', capacity: 1, price: 250, status: 'Disponível' },
+          { id: '2', name: 'Ingresso Premium', capacity: 1, price: 180, status: 'Disponível' },
+          { id: '3', name: 'Ingresso Standard', capacity: 1, price: 120, status: 'Disponível' },
+          { id: '4', name: 'Ingresso Estudante', capacity: 1, price: 80, status: 'Disponível' }
+        ];
+      case 'area':
+        return [
+          { id: '1', name: 'Lounge VIP Premium', capacity: 20, price: 200, status: 'Disponível' },
+          { id: '2', name: 'Área Família', capacity: 15, price: 120, status: 'Disponível' },
+          { id: '3', name: 'Camarote Executivo', capacity: 8, price: 350, status: 'Disponível' }
+        ];
+      default:
+        return [
+          { id: '1', name: `${itemConfig.singular} Premium`, capacity: 8, price: 200, status: 'Disponível' },
+          { id: '2', name: `${itemConfig.singular} Standard`, capacity: 6, price: 150, status: 'Disponível' }
+        ];
+    }
+  })();
 
   const statuses = ['Pendente', 'Confirmado', 'Cancelado'];
   const paymentStatuses = ['Pendente', 'Pago', 'Estornado', 'Cancelado'];
@@ -69,14 +106,21 @@ const ReservationForm = () => {
       });
     }
 
-    // Auto-calculate total value when event or table changes
-    if (field === 'eventId' || field === 'tableId') {
+    // Auto-calculate total value when event or item changes
+    if (field === 'eventId' || field === 'itemId') {
       const selectedEvent = events.find(e => e.id === (field === 'eventId' ? value : formData.eventId));
-      const selectedTable = tables.find(t => t.id === (field === 'tableId' ? value : formData.tableId));
+      const selectedItem = items.find(t => t.id === (field === 'itemId' ? value : formData.itemId));
       
-      if (selectedEvent && selectedTable) {
-        const total = selectedEvent.price * selectedTable.seats;
-        setFormData(prev => ({ ...prev, totalValue: total.toString(), seats: selectedTable.seats.toString() }));
+      if (selectedEvent && selectedItem) {
+        let total = 0;
+        if (itemConfig.type === 'ingresso') {
+          // Para ingressos, o preço é individual
+          total = selectedItem.price;
+        } else {
+          // Para mesas/áreas, calcula por capacidade
+          total = selectedEvent.price * selectedItem.capacity;
+        }
+        setFormData(prev => ({ ...prev, totalValue: total.toString(), quantity: selectedItem.capacity.toString() }));
       }
     }
   };
@@ -88,7 +132,7 @@ const ReservationForm = () => {
     if (!formData.customerEmail.trim()) newErrors.customerEmail = 'Email é obrigatório';
     if (!formData.customerPhone.trim()) newErrors.customerPhone = 'Telefone é obrigatório';
     if (!formData.eventId) newErrors.eventId = 'Selecione um evento';
-    if (!formData.tableId) newErrors.tableId = 'Selecione uma mesa';
+    if (!formData.itemId) newErrors.itemId = `Selecione ${itemConfig.singular.toLowerCase()}`;
     if (!formData.paymentMethod) newErrors.paymentMethod = 'Método de pagamento é obrigatório';
 
     setErrors(newErrors);
@@ -130,7 +174,7 @@ const ReservationForm = () => {
   };
 
   const selectedEvent = events.find(e => e.id === formData.eventId);
-  const selectedTable = tables.find(t => t.id === formData.tableId);
+  const selectedItem = items.find(t => t.id === formData.itemId);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -248,12 +292,12 @@ const ReservationForm = () => {
                 </CardContent>
               </Card>
 
-              {/* Event and Table Selection */}
+              {/* Event and Item Selection */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Seleção de Evento e Mesa</CardTitle>
+                  <CardTitle>Seleção de Evento e {itemConfig.singular}</CardTitle>
                   <CardDescription>
-                    Escolha o evento e a mesa para a reserva
+                    Escolha o evento e {itemConfig.singular.toLowerCase()} para a reserva
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -287,50 +331,54 @@ const ReservationForm = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="tableId">Mesa *</Label>
+                    <Label htmlFor="itemId">{itemConfig.singular} *</Label>
                     <Select 
-                      value={formData.tableId} 
-                      onValueChange={(value) => handleInputChange('tableId', value)}
+                      value={formData.itemId} 
+                      onValueChange={(value) => handleInputChange('itemId', value)}
                       disabled={!formData.eventId}
                     >
-                      <SelectTrigger className={errors.tableId ? 'border-red-500' : ''}>
-                        <SelectValue placeholder="Selecione a mesa" />
+                      <SelectTrigger className={errors.itemId ? 'border-red-500' : ''}>
+                        <SelectValue placeholder={`Selecione ${itemConfig.singular.toLowerCase()}`} />
                       </SelectTrigger>
                       <SelectContent>
-                        {tables.map((table) => (
+                        {items.map((item) => (
                           <SelectItem 
-                            key={table.id} 
-                            value={table.id}
-                            disabled={table.status === 'Reservada' && table.id !== formData.tableId}
+                            key={item.id} 
+                            value={item.id}
+                            disabled={item.status === 'Reservada' && item.id !== formData.itemId}
                           >
                             <div className="flex items-center justify-between w-full">
                               <div>
-                                <span className="font-medium">Mesa {table.number}</span>
+                                <span className="font-medium">{item.name}</span>
                                 <span className="text-sm text-muted-foreground ml-2">
-                                  ({table.seats} lugares - R$ {table.price})
+                                  ({item.capacity} {itemConfig.capacityLabel} - R$ {item.price})
                                 </span>
                               </div>
                               <Badge 
-                                variant={table.status === 'Disponível' ? 'default' : 'secondary'}
+                                variant={item.status === 'Disponível' ? 'default' : 'secondary'}
                                 className="ml-2"
                               >
-                                {table.status}
+                                {item.status}
                               </Badge>
                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.tableId && (
-                      <p className="text-sm text-red-500">{errors.tableId}</p>
+                    {errors.itemId && (
+                      <p className="text-sm text-red-500">{errors.itemId}</p>
                     )}
                   </div>
 
-                  {selectedEvent && selectedTable && (
+                  {selectedEvent && selectedItem && (
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        <strong>Total calculado:</strong> {selectedTable.seats} pessoas × R$ {selectedEvent.price} = R$ {(selectedEvent.price * selectedTable.seats).toLocaleString()}
+                        <strong>Total calculado:</strong> {
+                          itemConfig.type === 'ingresso' 
+                            ? `1 ${itemConfig.singular.toLowerCase()} × R$ ${selectedItem.price} = R$ ${selectedItem.price.toLocaleString()}`
+                            : `${selectedItem.capacity} ${itemConfig.capacityLabel} × R$ ${selectedEvent.price} = R$ ${(selectedEvent.price * selectedItem.capacity).toLocaleString()}`
+                        }
                       </AlertDescription>
                     </Alert>
                   )}
@@ -384,7 +432,7 @@ const ReservationForm = () => {
                           onChange={(e) => handleInputChange('totalValue', e.target.value)}
                           placeholder="0.00"
                           className="pl-10"
-                          readOnly={!!selectedEvent && !!selectedTable}
+                          readOnly={!!selectedEvent && !!selectedItem}
                         />
                       </div>
                     </div>
@@ -461,7 +509,7 @@ const ReservationForm = () => {
               </Card>
 
               {/* Summary */}
-              {selectedEvent && selectedTable && (
+              {selectedEvent && selectedItem && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Resumo da Reserva</CardTitle>
@@ -476,10 +524,10 @@ const ReservationForm = () => {
                     </div>
                     
                     <div>
-                      <p className="text-sm text-muted-foreground">Mesa</p>
-                      <p className="font-medium">Mesa {selectedTable.number}</p>
+                      <p className="text-sm text-muted-foreground">{itemConfig.singular}</p>
+                      <p className="font-medium">{selectedItem.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedTable.seats} lugares
+                        {selectedItem.capacity} {itemConfig.capacityLabel}
                       </p>
                     </div>
                     

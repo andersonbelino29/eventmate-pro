@@ -15,12 +15,25 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useTenant } from '@/contexts/TenantContext';
 
 const EventForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { currentTenant } = useTenant();
   const isEditing = !!id;
+
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
 
   // Form states
   const [formData, setFormData] = useState({
@@ -474,8 +487,8 @@ const EventForm = () => {
                         </SelectItem>
                         <SelectItem value="differentiated">
                           <div className="flex flex-col">
-                            <span>Preços Diferenciados</span>
-                            <span className="text-xs text-muted-foreground">Diferentes tipos de itens com preços variados</span>
+                            <span>Por {itemConfig.singular}</span>
+                            <span className="text-xs text-muted-foreground">Diferentes tipos de {itemConfig.plural.toLowerCase()} com preços variados</span>
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -496,6 +509,20 @@ const EventForm = () => {
                           className="pl-10"
                           step="0.01"
                         />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Valor fixo cobrado por pessoa
+                      </p>
+                    </div>
+                  )}
+
+                  {formData.pricingType === 'differentiated' && (
+                    <div className="space-y-2">
+                      <Label>Preços Diferenciados</Label>
+                      <div className="p-3 bg-muted rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          Os preços serão definidos individualmente para cada {itemConfig.singular.toLowerCase()} na seção de gerenciamento de {itemConfig.plural.toLowerCase()}.
+                        </p>
                       </div>
                     </div>
                   )}

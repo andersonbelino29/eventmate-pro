@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTenant } from '@/contexts/TenantContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,9 +25,21 @@ import { CustomPagination } from "@/components/ui/custom-pagination";
 
 const ReservationList = () => {
   const { toast } = useToast();
+  const { currentTenant } = useTenant();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [eventFilter, setEventFilter] = useState('all');
+
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
 
   // Mock reservations data
   const reservations = [
@@ -37,8 +50,13 @@ const ReservationList = () => {
       customerPhone: "(11) 99999-9999",
       eventName: "Casamento dos Sonhos",
       eventDate: "2024-03-15",
-      tableNumber: 5,
-      seats: 8,
+      itemType: itemConfig.type,
+      itemName: itemConfig.singular === 'Mesa' ? 'Mesa 5' : 
+                itemConfig.singular === 'Ingresso' ? 'Ingresso VIP' : 
+                `${itemConfig.singular} Premium`,
+      itemDetail: itemConfig.type === 'mesa' ? '8 pessoas' : 
+                  itemConfig.type === 'ingresso' ? '1 pessoa' : 
+                  '8 pessoas',
       totalValue: 1200,
       status: "Confirmado",
       paymentStatus: "Pago",
@@ -53,8 +71,13 @@ const ReservationList = () => {
       customerPhone: "(11) 88888-8888",
       eventName: "Tech Summit 2024",
       eventDate: "2024-03-20",
-      tableNumber: 12,
-      seats: 6,
+      itemType: itemConfig.type,
+      itemName: itemConfig.singular === 'Mesa' ? 'Mesa 12' : 
+                itemConfig.singular === 'Ingresso' ? 'Ingresso Premium' : 
+                `${itemConfig.singular} Standard`,
+      itemDetail: itemConfig.type === 'mesa' ? '6 pessoas' : 
+                  itemConfig.type === 'ingresso' ? '1 pessoa' : 
+                  '6 pessoas',
       totalValue: 900,
       status: "Confirmado",
       paymentStatus: "Pendente",
@@ -69,8 +92,13 @@ const ReservationList = () => {
       customerPhone: "(11) 77777-7777",
       eventName: "Aniversário 50 Anos",
       eventDate: "2024-03-25",
-      tableNumber: 8,
-      seats: 4,
+      itemType: itemConfig.type,
+      itemName: itemConfig.singular === 'Mesa' ? 'Mesa 8' : 
+                itemConfig.singular === 'Ingresso' ? 'Ingresso Standard' : 
+                `${itemConfig.singular} Família`,
+      itemDetail: itemConfig.type === 'mesa' ? '4 pessoas' : 
+                  itemConfig.type === 'ingresso' ? '1 pessoa' : 
+                  '4 pessoas',
       totalValue: 600,
       status: "Pendente",
       paymentStatus: "Pendente",
@@ -85,8 +113,13 @@ const ReservationList = () => {
       customerPhone: "(11) 66666-6666",
       eventName: "Workshop Culinária",
       eventDate: "2024-04-01",
-      tableNumber: 3,
-      seats: 2,
+      itemType: itemConfig.type,
+      itemName: itemConfig.singular === 'Mesa' ? 'Mesa 3' : 
+                itemConfig.singular === 'Ingresso' ? 'Ingresso Estudante' : 
+                `${itemConfig.singular} Básico`,
+      itemDetail: itemConfig.type === 'mesa' ? '2 pessoas' : 
+                  itemConfig.type === 'ingresso' ? '1 pessoa' : 
+                  '2 pessoas',
       totalValue: 350,
       status: "Cancelado",
       paymentStatus: "Estornado",
@@ -138,7 +171,7 @@ const ReservationList = () => {
       reservation.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       reservation.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
       reservation.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      reservation.tableNumber.toString().includes(searchQuery);
+      reservation.itemName.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || reservation.status === statusFilter;
     const matchesEvent = eventFilter === 'all' || reservation.eventName === eventFilter;
@@ -268,7 +301,7 @@ const ReservationList = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar por cliente, evento ou mesa..."
+                    placeholder={`Buscar por cliente, evento ou ${itemConfig.singular.toLowerCase()}...`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -329,7 +362,7 @@ const ReservationList = () => {
                   <TableRow>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Evento</TableHead>
-                    <TableHead>Mesa</TableHead>
+                    <TableHead>{itemConfig.singular}</TableHead>
                     <TableHead>Valor</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Pagamento</TableHead>
@@ -364,10 +397,10 @@ const ReservationList = () => {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <Badge variant="outline">Mesa {reservation.tableNumber}</Badge>
+                          <Badge variant="outline">{reservation.itemName}</Badge>
                           <div className="text-sm text-muted-foreground mt-1">
                             <Users className="h-3 w-3 inline mr-1" />
-                            {reservation.seats} lugares
+                            {reservation.itemDetail}
                           </div>
                         </div>
                       </TableCell>
