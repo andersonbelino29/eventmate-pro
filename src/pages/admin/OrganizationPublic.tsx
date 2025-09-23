@@ -27,7 +27,7 @@ const OrganizationPublic = () => {
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
 
   // Mock events data - com sistema de preços flexível
@@ -92,7 +92,7 @@ const OrganizationPublic = () => {
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.description.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesCategory = selectedCategory === "" || event.category === selectedCategory;
+      const matchesCategory = selectedCategory === "all" || event.category === selectedCategory;
       
       const matchesDate = selectedDate === "" || event.rawDate === selectedDate;
       
@@ -213,7 +213,7 @@ const OrganizationPublic = () => {
                       <SelectValue placeholder="Todas as categorias" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as categorias</SelectItem>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
@@ -233,7 +233,7 @@ const OrganizationPublic = () => {
                 </div>
               </div>
               
-              {(searchTerm || selectedCategory || selectedDate) && (
+              {(searchTerm || selectedCategory !== "all" || selectedDate) && (
                 <div className="mt-4 flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
                     {filteredEvents.length} evento(s) encontrado(s)
@@ -243,7 +243,7 @@ const OrganizationPublic = () => {
                     size="sm"
                     onClick={() => {
                       setSearchTerm("");
-                      setSelectedCategory("");
+                      setSelectedCategory("all");
                       setSelectedDate("");
                     }}
                   >
@@ -285,7 +285,7 @@ const OrganizationPublic = () => {
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
-                    setSelectedCategory("");
+                    setSelectedCategory("all");
                     setSelectedDate("");
                   }}
                 >
