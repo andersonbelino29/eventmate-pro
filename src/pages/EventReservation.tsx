@@ -80,34 +80,38 @@ const EventReservation = () => {
     priceLabel: 'por pessoa'
   };
 
-  // Mock items based on configuration
+  // Mock items based on configuration and event pricing
   const items = (() => {
-    switch (itemConfig.type) {
-      case 'mesa':
-        return [
-          { id: 1, name: "Mesa VIP - Frente do Palco", seats: 8, location: "Área VIP", price: 200, status: "Disponível" },
-          { id: 2, name: "Mesa Premium - Vista Jardim", seats: 6, location: "Área Premium", price: 180, status: "Reservada" },
-          { id: 3, name: "Mesa Standard - Salão Principal", seats: 10, location: "Área Central", price: 150, status: "Disponível" },
-          { id: 4, name: "Mesa Família - Área Infantil", seats: 4, location: "Área Família", price: 170, status: "Disponível" }
-        ];
-      case 'ingresso':
-        return [
-          { id: 1, name: "Ingresso VIP", seats: 1, location: "Área VIP", price: 250, status: "Disponível" },
-          { id: 2, name: "Ingresso Premium", seats: 1, location: "Área Premium", price: 180, status: "Disponível" },
-          { id: 3, name: "Ingresso Standard", seats: 1, location: "Pista", price: 120, status: "Disponível" },
-          { id: 4, name: "Ingresso Estudante", seats: 1, location: "Pista", price: 80, status: "Disponível" }
-        ];
-      case 'area':
-        return [
-          { id: 1, name: "Lounge VIP", seats: 20, location: "Andar Superior", price: 150, status: "Disponível" },
-          { id: 2, name: "Área Família", seats: 15, location: "Jardim", price: 120, status: "Disponível" },
-          { id: 3, name: "Camarote Premium", seats: 8, location: "Área Central", price: 200, status: "Reservada" }
-        ];
-      default:
-        return [
-          { id: 1, name: `${itemConfig.singular} Premium`, seats: 8, location: "Local Principal", price: 200, status: "Disponível" },
-          { id: 2, name: `${itemConfig.singular} Standard`, seats: 6, location: "Local Secundário", price: 150, status: "Disponível" }
-        ];
+    // In a real app, this would come from the event's configured items
+    const eventPricingType = 'per_person'; // This would come from the event data
+    const eventItems = [
+      { id: 1, name: "Mesa VIP - Frente do Palco", seats: 8, location: "Área VIP", price: 200, status: "Disponível", type: "VIP" },
+      { id: 2, name: "Mesa Premium - Vista Jardim", seats: 6, location: "Área Premium", price: 180, status: "Reservada", type: "Premium" },
+      { id: 3, name: "Mesa Standard - Salão Principal", seats: 10, location: "Área Central", price: 150, status: "Disponível", type: "Standard" },
+      { id: 4, name: "Mesa Família - Área Infantil", seats: 4, location: "Área Família", price: 170, status: "Disponível", type: "Família" }
+    ];
+
+    // If the event has specific pricing type
+    if (eventPricingType === 'per_person') {
+      // All items would use the same per-person price from the event
+      return eventItems.map(item => ({
+        ...item,
+        price: event.price, // Use event's per-person price
+        priceType: 'per_person'
+      }));
+    } else if (eventPricingType === 'per_item') {
+      // All items would use the same item price
+      return eventItems.map(item => ({
+        ...item,
+        price: event.price || 200, // Use event's per-item price
+        priceType: 'per_item'
+      }));
+    } else {
+      // Use individual item prices (per_table)
+      return eventItems.map(item => ({
+        ...item,
+        priceType: 'per_table'
+      }));
     }
   })();
 
@@ -168,7 +172,15 @@ const EventReservation = () => {
                             )}
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-lg">R$ {item.price}{itemConfig.priceLabel}</div>
+                            <div className="font-bold text-lg">
+                              R$ {item.price}
+                              {item.priceType === 'per_person' && itemConfig.requiresCapacity 
+                                ? ` ${itemConfig.priceLabel}` 
+                                : item.priceType === 'per_item' 
+                                  ? ' por item'
+                                  : itemConfig.priceLabel
+                              }
+                            </div>
                             <Badge variant={item.status === 'Disponível' ? 'default' : 'secondary'}>
                               {item.status}
                             </Badge>
@@ -272,10 +284,16 @@ const EventReservation = () => {
                         </div>
                       )}
                       <div className="flex justify-between">
-                        <span>Valor {itemConfig.priceLabel}:</span>
+                        <span>Valor {
+                          selectedTable.priceType === 'per_person' && itemConfig.requiresCapacity 
+                            ? itemConfig.priceLabel
+                            : selectedTable.priceType === 'per_item' 
+                              ? 'por item'
+                              : itemConfig.priceLabel
+                        }:</span>
                         <span>R$ {selectedTable.price}</span>
                       </div>
-                      {itemConfig.requiresCapacity && (
+                      {itemConfig.requiresCapacity && selectedTable.priceType === 'per_person' && (
                         <>
                           <div className="flex justify-between">
                             <span>Subtotal:</span>
@@ -293,13 +311,19 @@ const EventReservation = () => {
                           </div>
                         </>
                       )}
-                      {!itemConfig.requiresCapacity && (
-                        <div className="border-t pt-2">
-                          <div className="flex justify-between font-bold">
-                            <span>Total:</span>
-                            <span>R$ {selectedTable.price.toFixed(2)}</span>
+                      {(!itemConfig.requiresCapacity || selectedTable.priceType !== 'per_person') && (
+                        <>
+                          <div className="flex justify-between">
+                            <span>Taxa de serviço (10%):</span>
+                            <span>R$ {(selectedTable.price * 0.1).toFixed(2)}</span>
                           </div>
-                        </div>
+                          <div className="border-t pt-2">
+                            <div className="flex justify-between font-bold">
+                              <span>Total:</span>
+                              <span>R$ {(selectedTable.price * 1.1).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </>
                       )}
                     </div>
                     

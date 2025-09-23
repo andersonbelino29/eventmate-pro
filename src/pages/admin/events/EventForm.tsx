@@ -34,14 +34,20 @@ const EventForm = () => {
     address: isEditing ? 'Rua das Flores, 123 - Centro' : '',
     category: isEditing ? 'Casamento' : '',
     capacity: isEditing ? '200' : '',
-    pricingType: isEditing ? 'per_person' : 'per_person', // 'per_person' ou 'per_table'
+    pricingType: isEditing ? 'per_person' : 'per_person', // 'per_person', 'per_item', ou 'per_table'
     pricePerPerson: isEditing ? '150' : '',
+    pricePerItem: isEditing ? '200' : '',
     status: isEditing ? 'Confirmado' : 'Rascunho',
     image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : '',
     tables: isEditing ? [
       { id: '1', name: 'Mesa VIP', seats: 8, price: 200, available: 5 },
       { id: '2', name: 'Mesa Premium', seats: 8, price: 180, available: 10 },
       { id: '3', name: 'Mesa Standard', seats: 8, price: 150, available: 15 }
+    ] : [],
+    items: isEditing ? [
+      { id: '1', name: 'Ingresso VIP', capacity: 1, price: 250, location: 'Área VIP', type: 'VIP' },
+      { id: '2', name: 'Ingresso Premium', capacity: 1, price: 180, location: 'Área Premium', type: 'Premium' },
+      { id: '3', name: 'Ingresso Standard', capacity: 1, price: 120, location: 'Pista', type: 'Standard' }
     ] : []
   });
 
@@ -86,6 +92,10 @@ const EventForm = () => {
     if (formData.pricingType === 'per_person') {
       if (!formData.pricePerPerson || parseFloat(formData.pricePerPerson) < 0) {
         newErrors.pricePerPerson = 'Preço por pessoa deve ser maior ou igual a zero';
+      }
+    } else if (formData.pricingType === 'per_item') {
+      if (!formData.pricePerItem || parseFloat(formData.pricePerItem) < 0) {
+        newErrors.pricePerItem = 'Preço por item deve ser maior ou igual a zero';
       }
     } else if (formData.pricingType === 'per_table') {
       if (formData.tables.length === 0) {
