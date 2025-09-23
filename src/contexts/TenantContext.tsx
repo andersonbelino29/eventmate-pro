@@ -386,9 +386,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         }
       }
       
-      // Buscar tenant nos dados mockados ou no localStorage
       if (tenantId) {
         const tenant = tenants.find(t => t.id === tenantId);
+        console.log('🔍 Tenant detectado:', { tenantId, tenant: tenant?.name, itemType: tenant?.itemConfig?.type });
         setCurrentTenant(tenant || null);
       } else {
         // Verificar localStorage para desenvolvimento

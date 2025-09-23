@@ -8,6 +8,7 @@ import LoginSignup from "@/pages/LoginSignup";
 import MyReservations from "@/pages/MyReservations";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
+import TenantTest from "@/pages/TenantTest";
 import { TenantProtectedRoute } from "@/components/ProtectedRoute";
 
 const TenantApp = () => {
@@ -62,6 +63,7 @@ const TenantApp = () => {
               } 
             />
             <Route path="/admin/*" element={<Admin />} />
+            <Route path="/test" element={<TenantTest />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
     </div>
