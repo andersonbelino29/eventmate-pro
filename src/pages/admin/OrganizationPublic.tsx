@@ -13,6 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import EventCard from "@/components/EventCard";
 import Navbar from "@/components/Navbar";
+import ContactForm from "@/components/ContactForm";
 import eventWedding from "@/assets/event-wedding.jpg";
 import eventCorporate from "@/assets/event-corporate.jpg";
 import eventBirthday from "@/assets/event-birthday.jpg";
@@ -387,7 +388,7 @@ const OrganizationPublic = () => {
               </div>
               
               {currentTenant.contactPage.businessHours && currentTenant.contactPage.businessHours.length > 0 && (
-                <div className="text-center">
+                <div className="text-center mb-12">
                   <h3 className="text-xl font-semibold mb-4">Horário de Funcionamento</h3>
                   <div className="space-y-2">
                     {currentTenant.contactPage.businessHours.map((hour, index) => (
@@ -399,6 +400,11 @@ const OrganizationPublic = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Contact Form */}
+              <div className="mt-12">
+                <ContactForm />
+              </div>
             </div>
           </div>
         </section>

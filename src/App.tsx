@@ -15,6 +15,7 @@ import EventList from "./pages/admin/events/EventList";
 import EventForm from "./pages/admin/events/EventForm";
 import EventView from "./pages/admin/events/EventView";
 import TableManagement from "./pages/admin/tables/TableManagement";
+import ContactMessages from "./pages/admin/ContactMessages";
 import Reports from "./pages/admin/Reports";
 import ReservationList from "./pages/admin/reservations/ReservationList";
 import ReservationForm from "./pages/admin/reservations/ReservationForm";
@@ -90,6 +91,22 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="admin">
                     <TableManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/tables/:eventId" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <TableManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/contact-messages" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <ContactMessages />
                   </ProtectedRoute>
                 } 
               />
