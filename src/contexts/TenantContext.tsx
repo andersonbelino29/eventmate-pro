@@ -43,6 +43,15 @@ export interface Tenant {
       linkedin?: string;
     };
   };
+  itemConfig?: {
+    type: 'mesa' | 'ingresso' | 'area' | 'servico' | 'produto';
+    singular: string; // Ex: "Mesa", "Ingresso", "Área"
+    plural: string; // Ex: "Mesas", "Ingressos", "Áreas"
+    requiresLocation: boolean;
+    requiresCapacity: boolean;
+    capacityLabel: string; // Ex: "Lugares", "Pessoas", "Vagas"
+    priceLabel: string; // Ex: "por pessoa", "por ingresso", "por área"
+  };
   paymentConfig?: {
     enabled: boolean;
     requirePayment: boolean;
@@ -154,6 +163,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           linkedin: "villa-eventos"
         }
       },
+      itemConfig: {
+        type: 'mesa',
+        singular: 'Mesa',
+        plural: 'Mesas',
+        requiresLocation: true,
+        requiresCapacity: true,
+        capacityLabel: 'pessoas',
+        priceLabel: 'por pessoa'
+      },
       paymentConfig: {
         enabled: true,
         requirePayment: true,
@@ -236,6 +254,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           facebook: "buffet.alegria.oficial"
         }
       },
+      itemConfig: {
+        type: 'servico',
+        singular: 'Serviço',
+        plural: 'Serviços',
+        requiresLocation: true,
+        requiresCapacity: true,
+        capacityLabel: 'pessoas',
+        priceLabel: 'por pessoa'
+      },
       paymentConfig: {
         enabled: false,
         requirePayment: false,
@@ -254,6 +281,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       logo: 'https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=200&h=200&fit=crop&crop=center',
       primaryColor: '210 70% 50%',
       secondaryColor: '230 70% 60%',
+      itemConfig: {
+        type: 'ingresso',
+        singular: 'Ingresso',
+        plural: 'Ingressos',
+        requiresLocation: false,
+        requiresCapacity: false,
+        capacityLabel: 'ingressos',
+        priceLabel: 'por ingresso'
+      },
       paymentConfig: {
         enabled: true,
         requirePayment: false,

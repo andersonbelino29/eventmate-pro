@@ -69,13 +69,47 @@ const EventReservation = () => {
     image: "/src/assets/event-wedding.jpg"
   };
 
-  // Mock items
-  const tables = [
-    { id: 1, name: "Mesa VIP - Frente do Palco", seats: 8, location: "Área VIP", price: 200, status: "Disponível" },
-    { id: 2, name: "Mesa Premium - Vista Jardim", seats: 6, location: "Área Premium", price: 180, status: "Reservada" },
-    { id: 3, name: "Mesa Standard - Salão Principal", seats: 10, location: "Área Central", price: 150, status: "Disponível" },
-    { id: 4, name: "Mesa Família - Área Infantil", seats: 4, location: "Área Família", price: 170, status: "Disponível" }
-  ];
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
+
+  // Mock items based on configuration
+  const items = (() => {
+    switch (itemConfig.type) {
+      case 'mesa':
+        return [
+          { id: 1, name: "Mesa VIP - Frente do Palco", seats: 8, location: "Área VIP", price: 200, status: "Disponível" },
+          { id: 2, name: "Mesa Premium - Vista Jardim", seats: 6, location: "Área Premium", price: 180, status: "Reservada" },
+          { id: 3, name: "Mesa Standard - Salão Principal", seats: 10, location: "Área Central", price: 150, status: "Disponível" },
+          { id: 4, name: "Mesa Família - Área Infantil", seats: 4, location: "Área Família", price: 170, status: "Disponível" }
+        ];
+      case 'ingresso':
+        return [
+          { id: 1, name: "Ingresso VIP", seats: 1, location: "Área VIP", price: 250, status: "Disponível" },
+          { id: 2, name: "Ingresso Premium", seats: 1, location: "Área Premium", price: 180, status: "Disponível" },
+          { id: 3, name: "Ingresso Standard", seats: 1, location: "Pista", price: 120, status: "Disponível" },
+          { id: 4, name: "Ingresso Estudante", seats: 1, location: "Pista", price: 80, status: "Disponível" }
+        ];
+      case 'area':
+        return [
+          { id: 1, name: "Lounge VIP", seats: 20, location: "Andar Superior", price: 150, status: "Disponível" },
+          { id: 2, name: "Área Família", seats: 15, location: "Jardim", price: 120, status: "Disponível" },
+          { id: 3, name: "Camarote Premium", seats: 8, location: "Área Central", price: 200, status: "Reservada" }
+        ];
+      default:
+        return [
+          { id: 1, name: `${itemConfig.singular} Premium`, seats: 8, location: "Local Principal", price: 200, status: "Disponível" },
+          { id: 2, name: `${itemConfig.singular} Standard`, seats: 6, location: "Local Secundário", price: 150, status: "Disponível" }
+        ];
+    }
+  })();
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,9 +140,9 @@ const EventReservation = () => {
               </div>
               
               <div>
-                <h2 className="text-2xl font-bold mb-6">Selecione sua Opção</h2>
+                <h2 className="text-2xl font-bold mb-6">Selecione sua {itemConfig.singular}</h2>
                 <div className="grid grid-cols-1 gap-4">
-                  {tables.map((item) => (
+                  {items.map((item) => (
                     <Card 
                       key={item.id}
                       className={`cursor-pointer transition-all ${
@@ -126,13 +160,15 @@ const EventReservation = () => {
                           <div>
                             <h3 className="font-semibold">{item.name}</h3>
                             <p className="text-sm text-muted-foreground">{item.location}</p>
-                            <div className="flex items-center mt-2">
-                              <Users className="h-4 w-4 mr-1" />
-                              <span className="text-sm">{item.seats} pessoas</span>
-                            </div>
+                            {itemConfig.requiresCapacity && (
+                              <div className="flex items-center mt-2">
+                                <Users className="h-4 w-4 mr-1" />
+                                <span className="text-sm">{item.seats} {itemConfig.capacityLabel}</span>
+                              </div>
+                            )}
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-lg">R$ {item.price}/pessoa</div>
+                            <div className="font-bold text-lg">R$ {item.price}{itemConfig.priceLabel}</div>
                             <Badge variant={item.status === 'Disponível' ? 'default' : 'secondary'}>
                               {item.status}
                             </Badge>
@@ -229,28 +265,42 @@ const EventReservation = () => {
                     </div>
                     
                     <div className="space-y-2 text-sm">
+                      {itemConfig.requiresCapacity && (
+                        <div className="flex justify-between">
+                          <span>Capacidade:</span>
+                          <span>{selectedTable.seats} {itemConfig.capacityLabel}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
-                        <span>Capacidade:</span>
-                        <span>{selectedTable.seats} pessoas</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Valor por pessoa:</span>
+                        <span>Valor {itemConfig.priceLabel}:</span>
                         <span>R$ {selectedTable.price}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Subtotal:</span>
-                        <span>R$ {(selectedTable.price * selectedTable.seats).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Taxa de serviço (10%):</span>
-                        <span>R$ {(selectedTable.price * selectedTable.seats * 0.1).toFixed(2)}</span>
-                      </div>
-                      <div className="border-t pt-2">
-                        <div className="flex justify-between font-bold">
-                          <span>Total:</span>
-                          <span>R$ {(selectedTable.price * selectedTable.seats * 1.1).toFixed(2)}</span>
+                      {itemConfig.requiresCapacity && (
+                        <>
+                          <div className="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span>R$ {(selectedTable.price * selectedTable.seats).toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Taxa de serviço (10%):</span>
+                            <span>R$ {(selectedTable.price * selectedTable.seats * 0.1).toFixed(2)}</span>
+                          </div>
+                          <div className="border-t pt-2">
+                            <div className="flex justify-between font-bold">
+                              <span>Total:</span>
+                              <span>R$ {(selectedTable.price * selectedTable.seats * 1.1).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      {!itemConfig.requiresCapacity && (
+                        <div className="border-t pt-2">
+                          <div className="flex justify-between font-bold">
+                            <span>Total:</span>
+                            <span>R$ {selectedTable.price.toFixed(2)}</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                     
                     <div className="text-xs text-muted-foreground">

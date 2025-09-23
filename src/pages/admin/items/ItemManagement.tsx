@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTenant } from '@/contexts/TenantContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,12 +28,24 @@ import { CustomPagination } from "@/components/ui/custom-pagination";
 const ItemManagement = () => {
   const { eventId } = useParams();
   const { toast } = useToast();
+  const { currentTenant } = useTenant();
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
 
   // Form states
   const [formData, setFormData] = useState({
@@ -47,90 +60,120 @@ const ItemManagement = () => {
   // Mock event data
   const event = {
     id: eventId,
-    name: "Casamento Elegante",
+    name: "Evento Especial",
     date: "2024-03-15",
-    location: "Salão Principal",
-    itemType: "mesas" // Could be "mesas", "ingressos", "areas", etc.
+    location: "Local Principal",
+    itemType: itemConfig.type
   };
 
-  // Mock items data
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "Mesa VIP - Frente do Palco",
-      capacity: 8,
-      location: "Área VIP",
-      type: "Mesa Premium",
-      price: 200,
-      status: "Reservada",
-      customerName: "Maria Silva",
-      customerEmail: "maria@email.com",
-      reservedAt: "2024-02-01"
-    },
-    {
-      id: 2,
-      name: "Mesa Standard - Área Central",
-      capacity: 6,
-      location: "Área Central",
-      type: "Mesa Standard",
-      price: 150,
-      status: "Disponível",
-      customerName: null,
-      customerEmail: null,
-      reservedAt: null
-    },
-    {
-      id: 3,
-      name: "Área Família - Jardim",
-      capacity: 10,
-      location: "Área Jardim",
-      type: "Área Familiar",
-      price: 180,
-      status: "Reservada",
-      customerName: "João Santos",
-      customerEmail: "joao@email.com", 
-      reservedAt: "2024-02-03"
-    },
-    {
-      id: 4,
-      name: "Ingresso Individual",
-      capacity: 1,
-      location: "Área Geral",
-      type: "Ingresso",
-      price: 120,
-      status: "Disponível",
-      customerName: null,
-      customerEmail: null,
-      reservedAt: null
-    },
-    {
-      id: 5,
-      name: "Camarote Premium",
-      capacity: 4,
-      location: "Área VIP",
-      type: "Camarote",
-      price: 300,
-      status: "Disponível",
-      customerName: null,
-      customerEmail: null,
-      reservedAt: null
-    }
-  ]);
-
-  const getItemTypes = (eventType: string) => {
-    switch (eventType) {
-      case 'mesas':
-        return ["Mesa Premium", "Mesa Standard", "Mesa VIP", "Mesa Família"];
-      case 'ingressos':
-        return ["Ingresso Individual", "Ingresso Casal", "Ingresso Família"];
-      case 'areas':
-        return ["Área VIP", "Área Família", "Camarote", "Área Geral"];
+  // Mock items data based on item type
+  const [items, setItems] = useState(() => {
+    switch (itemConfig.type) {
+      case 'mesa':
+        return [
+          {
+            id: 1,
+            name: "Mesa VIP - Frente do Palco",
+            capacity: 8,
+            location: "Área VIP",
+            type: "Mesa Premium",
+            price: 200,
+            status: "Reservada",
+            customerName: "Maria Silva",
+            customerEmail: "maria@email.com",
+            reservedAt: "2024-02-01"
+          },
+          {
+            id: 2,
+            name: "Mesa Standard - Área Central",
+            capacity: 6,
+            location: "Área Central",
+            type: "Mesa Standard",
+            price: 150,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          }
+        ];
+      case 'ingresso':
+        return [
+          {
+            id: 1,
+            name: "Ingresso VIP",
+            capacity: 1,
+            location: "Área VIP",
+            type: "VIP",
+            price: 250,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          },
+          {
+            id: 2,
+            name: "Ingresso Pista",
+            capacity: 1,
+            location: "Pista",
+            type: "Standard",
+            price: 120,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          }
+        ];
+      case 'area':
+        return [
+          {
+            id: 1,
+            name: "Área VIP Lounge",
+            capacity: 20,
+            location: "Andar Superior",
+            type: "Lounge Premium",
+            price: 150,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          }
+        ];
       default:
-        return ["Mesa Premium", "Mesa Standard", "Área VIP", "Ingresso"];
+        return [
+          {
+            id: 1,
+            name: `${itemConfig.singular} Premium`,
+            capacity: 8,
+            location: "Local Principal",
+            type: "Premium",
+            price: 200,
+            status: "Disponível",
+            customerName: null,
+            customerEmail: null,
+            reservedAt: null
+          }
+        ];
+    }
+  });
+
+  const getItemTypes = (itemType: string) => {
+    switch (itemType) {
+      case 'mesa':
+        return ["Mesa Premium", "Mesa Standard", "Mesa VIP", "Mesa Família"];
+      case 'ingresso':
+        return ["VIP", "Premium", "Standard", "Estudante"];
+      case 'area':
+        return ["Lounge Premium", "Área Família", "Camarote", "Área Geral"];
+      case 'servico':
+        return ["Premium", "Standard", "Básico", "Personalizado"];
+      case 'produto':
+        return ["Premium", "Standard", "Econômico"];
+      default:
+        return ["Premium", "Standard", "Básico"];
     }
   };
 
-  const itemTypes = getItemTypes(event.itemType);
+  const itemTypes = getItemTypes(itemConfig.type);
   const locations = ["Área Central", "Área VIP", "Área Jardim", "Área Lateral", "Área Geral"];
   const statuses = ["Disponível", "Reservada", "Manutenção", "Bloqueada"];
 
@@ -286,7 +329,7 @@ const ItemManagement = () => {
               <div className="flex items-center space-x-2">
                 <Package className="h-6 w-6 text-primary" />
                 <div>
-                  <h1 className="text-2xl font-bold">Gerenciar Itens</h1>
+                  <h1 className="text-2xl font-bold">Gerenciar {itemConfig.plural}</h1>
                   <p className="text-sm text-muted-foreground">{event.name}</p>
                 </div>
               </div>
@@ -296,42 +339,44 @@ const ItemManagement = () => {
               <DialogTrigger asChild>
                 <Button onClick={resetForm}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Novo Item
+                  Nova {itemConfig.singular}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Criar Novo Item</DialogTitle>
+                  <DialogTitle>Criar Nova {itemConfig.singular}</DialogTitle>
                   <DialogDescription>
-                    Configure um novo item para o evento
+                    Configure uma nova {itemConfig.singular.toLowerCase()} para o evento
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nome do Item *</Label>
+                    <Label htmlFor="name">Nome da {itemConfig.singular} *</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Ex: Mesa VIP - Frente do Palco"
+                      placeholder={`Ex: ${itemConfig.singular} Premium`}
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="capacity">Capacidade *</Label>
-                      <Input
-                        id="capacity"
-                        type="number"
-                        value={formData.capacity}
-                        onChange={(e) => handleInputChange('capacity', e.target.value)}
-                        placeholder="8"
-                      />
-                    </div>
+                    {itemConfig.requiresCapacity && (
+                      <div className="space-y-2">
+                        <Label htmlFor="capacity">Capacidade ({itemConfig.capacityLabel}) *</Label>
+                        <Input
+                          id="capacity"
+                          type="number"
+                          value={formData.capacity}
+                          onChange={(e) => handleInputChange('capacity', e.target.value)}
+                          placeholder="8"
+                        />
+                      </div>
+                    )}
                     
                     <div className="space-y-2">
-                      <Label htmlFor="price">Preço por Pessoa (R$) *</Label>
+                      <Label htmlFor="price">Preço {itemConfig.priceLabel} (R$) *</Label>
                       <Input
                         id="price"
                         type="number"
@@ -343,27 +388,29 @@ const ItemManagement = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Localização *</Label>
-                    <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a área" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {locations.map((location) => (
-                          <SelectItem key={location} value={location}>
-                            <div className="flex items-center">
-                              <MapPin className="h-4 w-4 mr-2" />
-                              {location}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {itemConfig.requiresLocation && (
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Localização *</Label>
+                      <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a área" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {locations.map((location) => (
+                            <SelectItem key={location} value={location}>
+                              <div className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-2" />
+                                {location}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="type">Tipo do Item *</Label>
+                    <Label htmlFor="type">Tipo da {itemConfig.singular} *</Label>
                     <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
@@ -396,7 +443,7 @@ const ItemManagement = () => {
                     Cancelar
                   </Button>
                   <Button onClick={handleCreateItem}>
-                    Criar Item
+                    Criar {itemConfig.singular}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -413,7 +460,7 @@ const ItemManagement = () => {
               <div className="flex items-center">
                 <Package className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-muted-foreground">Total de Itens</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total de {itemConfig.plural}</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
               </div>
@@ -462,7 +509,7 @@ const ItemManagement = () => {
           <CardHeader>
             <CardTitle>Filtros</CardTitle>
             <CardDescription>
-              Encontre itens específicos usando os filtros abaixo
+              Encontre {itemConfig.plural.toLowerCase()} específicas usando os filtros abaixo
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -471,7 +518,7 @@ const ItemManagement = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar itens..."
+                    placeholder={`Buscar ${itemConfig.plural.toLowerCase()}...`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -497,7 +544,7 @@ const ItemManagement = () => {
         {/* Items List */}
         <Card>
           <CardHeader>
-            <CardTitle>Lista de Itens ({filteredItems.length})</CardTitle>
+            <CardTitle>Lista de {itemConfig.plural} ({filteredItems.length})</CardTitle>
             <CardDescription>
               Gerencie todos os itens do evento
             </CardDescription>

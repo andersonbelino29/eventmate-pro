@@ -11,10 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Building2, Upload, Palette, Save, Eye, ArrowLeft, 
   CheckCircle, Settings as SettingsIcon, CreditCard, 
-  Users, Globe, Shield, Info, Phone, Mail
+  Users, Globe, Shield, Info, Phone, Mail, Package
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -209,8 +211,9 @@ const Settings = () => {
         )}
 
         <Tabs defaultValue="brand" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="brand">Marca & Visual</TabsTrigger>
+            <TabsTrigger value="items">Itens</TabsTrigger>
             <TabsTrigger value="pages">Páginas</TabsTrigger>
             <TabsTrigger value="payment">Pagamentos</TabsTrigger>
             <TabsTrigger value="domain">Domínio</TabsTrigger>
@@ -387,6 +390,105 @@ const Settings = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Items Configuration Tab */}
+          <TabsContent value="items" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Package className="h-5 w-5 mr-2" />
+                  Configuração de Itens
+                </CardTitle>
+                <CardDescription>
+                  Configure o tipo de item que será oferecido em seus eventos
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="itemType">Tipo de Item</Label>
+                  <Select
+                    value={currentTenant?.itemConfig?.type || 'mesa'}
+                    onValueChange={(value) => {
+                      // Handle item type change
+                      console.log('Item type changed to:', value);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mesa">Mesa (Restaurantes, Festas)</SelectItem>
+                      <SelectItem value="ingresso">Ingresso (Shows, Eventos)</SelectItem>
+                      <SelectItem value="area">Área (Espaços, Lounges)</SelectItem>
+                      <SelectItem value="servico">Serviço (Buffet, Catering)</SelectItem>
+                      <SelectItem value="produto">Produto (Diversos)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="itemSingular">Nome Singular</Label>
+                    <Input
+                      id="itemSingular"
+                      value={currentTenant?.itemConfig?.singular || ''}
+                      placeholder="Ex: Mesa, Ingresso, Área"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="itemPlural">Nome Plural</Label>
+                    <Input
+                      id="itemPlural"
+                      value={currentTenant?.itemConfig?.plural || ''}
+                      placeholder="Ex: Mesas, Ingressos, Áreas"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="capacityLabel">Rótulo da Capacidade</Label>
+                    <Input
+                      id="capacityLabel"
+                      value={currentTenant?.itemConfig?.capacityLabel || ''}
+                      placeholder="Ex: pessoas, ingressos, vagas"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="priceLabel">Rótulo do Preço</Label>
+                    <Input
+                      id="priceLabel"
+                      value={currentTenant?.itemConfig?.priceLabel || ''}
+                      placeholder="Ex: por pessoa, por ingresso"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="requiresLocation"
+                    checked={currentTenant?.itemConfig?.requiresLocation}
+                  />
+                  <Label htmlFor="requiresLocation">Requer localização</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="requiresCapacity"
+                    checked={currentTenant?.itemConfig?.requiresCapacity}
+                  />
+                  <Label htmlFor="requiresCapacity">Requer capacidade</Label>
+                </div>
+
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    Essas configurações determinam como os itens aparecem na tela de reserva e no painel administrativo.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Páginas Tab */}
