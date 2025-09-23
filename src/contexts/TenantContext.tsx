@@ -184,111 +184,165 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       }
     },
     {
-      id: 'buffet-alegria',
-      name: 'Buffet Alegria',
-      subdomain: 'alegria',
-      logo: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop&crop=center',
-      primaryColor: '120 70% 50%',
-      secondaryColor: '140 70% 60%',
+      id: 'arena-tickets',
+      name: 'Arena Music Tickets',
+      subdomain: 'arena',
+      logo: 'https://images.unsplash.com/photo-1501612780327-45045538702b?w=200&h=200&fit=crop&crop=center',
+      primaryColor: '340 70% 50%',
+      secondaryColor: '10 70% 60%',
       heroConfig: {
-        title: "Buffet Alegria",
-        subtitle: "Tradição e sabor em cada evento",
-        description: "Com mais de 20 anos no mercado, oferecemos qualidade gastronômica e atendimento excepcional.",
-        buttonText: "Conheça Nossos Serviços",
-        featuredEvents: ["1"]
+        title: "Arena Music Tickets",
+        subtitle: "Os melhores shows e festivais estão aqui",
+        description: "Plataforma oficial de venda de ingressos para os maiores eventos musicais do país. Shows, festivais e experiências únicas.",
+        buttonText: "Comprar Ingressos",
+        featuredEvents: ["1", "2"]
       },
       aboutPage: {
         visible: true,
-        title: "Sobre o Buffet Alegria",
-        subtitle: "Tradição e sabor em cada evento",
-        description: "Com mais de 20 anos no mercado, o Buffet Alegria é sinônimo de qualidade gastronômica e atendimento excepcional em eventos.",
-        mission: "Proporcionar experiências gastronômicas memoráveis com excelência em cada detalhe.",
-        vision: "Ser reconhecido como o melhor buffet da região em qualidade e inovação culinária.",
+        title: "Sobre a Arena Music",
+        subtitle: "Conectando você aos melhores shows",
+        description: "A Arena Music é a plataforma líder em venda de ingressos para eventos musicais no Brasil. Trabalhamos com os melhores artistas e produtores.",
+        mission: "Conectar fãs aos seus artistas favoritos através de experiências musicais inesquecíveis.",
+        vision: "Ser a principal plataforma de eventos musicais da América Latina.",
         values: [
-          "Qualidade dos ingredientes",
-          "Tradição familiar",
-          "Inovação gastronômica",
-          "Sustentabilidade"
+          "Transparência na venda",
+          "Experiência do usuário",
+          "Segurança nas transações",
+          "Suporte 24/7"
         ],
         stats: [
-          { label: "Anos de Tradição", value: "20+" },
-          { label: "Eventos Atendidos", value: "1500+" },
-          { label: "Pratos no Cardápio", value: "200+" },
-          { label: "Satisfação Cliente", value: "98%" }
+          { label: "Shows Realizados", value: "500+" },
+          { label: "Ingressos Vendidos", value: "1M+" },
+          { label: "Artistas Parceiros", value: "200+" },
+          { label: "Cidades Atendidas", value: "50+" }
         ],
         team: [
           {
-            name: "Chef Marco Alegria",
-            role: "Chef Executivo",
-            description: "Especialista em culinária brasileira e internacional, formado na Le Cordon Bleu."
+            name: "Carlos Rock",
+            role: "CEO & Fundador",
+            description: "Produtor musical com 15 anos de experiência no mercado de entretenimento."
           },
           {
-            name: "Sofia Oliveira",
-            role: "Gerente de Eventos",
-            description: "Mais de 10 anos coordenando eventos de todos os tamanhos e estilos."
-          },
-          {
-            name: "André Costa",
-            role: "Sommelier",
-            description: "Especialista em harmonização e seleção de vinhos para cada ocasião."
+            name: "Marina Beat",
+            role: "Diretora de Eventos",
+            description: "Especialista em produção de festivais e shows de grande porte."
           }
         ]
       },
       contactPage: {
         visible: true,
-        title: "Fale Conosco",
-        subtitle: "Sabor e qualidade ao seu alcance",
-        description: "Entre em contato conosco e descubra como podemos tornar seu evento ainda mais saboroso e especial.",
-        address: "Rua das Palmeiras, 456 - Vila Madalena, São Paulo - SP",
-        phone: "(11) 2345-6789",
-        email: "contato@buffetalegria.com.br",
-        whatsapp: "(11) 98765-4321",
-        website: "www.buffetalegria.com.br",
+        title: "Atendimento Arena",
+        subtitle: "Suporte 24h para seus ingressos",
+        description: "Precisa de ajuda com seus ingressos? Nossa equipe está sempre disponível para te atender.",
+        address: "Av. das Nações, 2000 - Centro, São Paulo - SP",
+        phone: "(11) 4000-1234",
+        email: "suporte@arenamusic.com.br",
+        whatsapp: "(11) 99000-1234",
+        website: "www.arenamusic.com.br",
         businessHours: [
-          { day: "Terça à Sexta", time: "10:00 - 18:00" },
-          { day: "Sábados", time: "08:00 - 16:00" },
-          { day: "Domingos e Segundas", time: "Fechado" }
+          { day: "Segunda à Domingo", time: "24 horas" }
         ],
         socialMedia: {
-          instagram: "@buffetalegria",
-          facebook: "buffet.alegria.oficial"
+          instagram: "@arenamusic",
+          facebook: "arena.music.oficial",
+          linkedin: "arena-music"
         }
       },
-      itemConfig: {
-        type: 'servico',
-        singular: 'Serviço',
-        plural: 'Serviços',
-        requiresLocation: true,
-        requiresCapacity: true,
-        capacityLabel: 'pessoas',
-        priceLabel: 'por pessoa'
-      },
-      paymentConfig: {
-        enabled: false,
-        requirePayment: false,
-        stripeEnabled: false,
-        pixEnabled: false,
-        boletoEnabled: false,
-        serviceFee: 0,
-        cancellationPolicy: "Reservas sem pagamento antecipado",
-        paymentMethods: []
-      }
-    },
-    {
-      id: 'centro-convencoes',
-      name: 'Centro de Convenções Premium',
-      subdomain: 'premium',
-      logo: 'https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=200&h=200&fit=crop&crop=center',
-      primaryColor: '210 70% 50%',
-      secondaryColor: '230 70% 60%',
       itemConfig: {
         type: 'ingresso',
         singular: 'Ingresso',
         plural: 'Ingressos',
         requiresLocation: false,
         requiresCapacity: false,
-        capacityLabel: 'ingressos',
+        capacityLabel: 'unidades',
         priceLabel: 'por ingresso'
+      },
+      paymentConfig: {
+        enabled: true,
+        requirePayment: true,
+        stripeEnabled: true,
+        pixEnabled: true,
+        boletoEnabled: true,
+        serviceFee: 15,
+        cancellationPolicy: "Política de cancelamento conforme evento",
+        paymentMethods: ["credit_card", "pix", "boleto"]
+      }
+    },
+    {
+      id: 'spaces-premium',
+      name: 'Premium Event Spaces',
+      subdomain: 'spaces',
+      logo: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=200&h=200&fit=crop&crop=center',
+      primaryColor: '45 70% 50%',
+      secondaryColor: '65 70% 60%',
+      heroConfig: {
+        title: "Premium Event Spaces",
+        subtitle: "Espaços exclusivos para eventos corporativos",
+        description: "Aluguel de áreas premium para conferências, workshops, treinamentos e eventos corporativos de alto padrão.",
+        buttonText: "Reservar Espaço",
+        featuredEvents: ["1"]
+      },
+      aboutPage: {
+        visible: true,
+        title: "Sobre Premium Spaces",
+        subtitle: "Espaços que inspiram grandes ideias",
+        description: "Oferecemos os mais modernos espaços para eventos corporativos, equipados com tecnologia de ponta e design contemporâneo.",
+        mission: "Fornecer ambientes inspiradores que potencializam o sucesso de eventos corporativos.",
+        vision: "Ser referência em espaços corporativos premium no Brasil.",
+        values: [
+          "Tecnologia de ponta",
+          "Design inovador",
+          "Sustentabilidade",
+          "Excelência operacional"
+        ],
+        stats: [
+          { label: "Espaços Disponíveis", value: "25+" },
+          { label: "Eventos Realizados", value: "2000+" },
+          { label: "Empresas Atendidas", value: "500+" },
+          { label: "Capacidade Total", value: "5000" }
+        ],
+        team: [
+          {
+            name: "Ana Corporate",
+            role: "Diretora Executiva",
+            description: "MBA em Gestão de Eventos com especialização em mercado corporativo."
+          },
+          {
+            name: "João Premium",
+            role: "Gerente de Operações",
+            description: "Especialista em logística e produção de eventos empresariais."
+          }
+        ]
+      },
+      contactPage: {
+        visible: true,
+        title: "Contato Comercial",
+        subtitle: "Vamos planejar seu próximo evento corporativo",
+        description: "Entre em contato com nossa equipe comercial e descubra o espaço perfeito para seu evento empresarial.",
+        address: "Torre Premium, Av. Faria Lima, 3000 - Itaim Bibi, São Paulo - SP",
+        phone: "(11) 3000-5000",
+        email: "comercial@premiumspaces.com.br",
+        whatsapp: "(11) 97000-5000",
+        website: "www.premiumspaces.com.br",
+        businessHours: [
+          { day: "Segunda à Sexta", time: "08:00 - 20:00" },
+          { day: "Sábados", time: "09:00 - 14:00" },
+          { day: "Domingos", time: "Fechado" }
+        ],
+        socialMedia: {
+          instagram: "@premiumspaces",
+          facebook: "premium.spaces",
+          linkedin: "premium-event-spaces"
+        }
+      },
+      itemConfig: {
+        type: 'area',
+        singular: 'Área',
+        plural: 'Áreas',
+        requiresLocation: true,
+        requiresCapacity: true,
+        capacityLabel: 'pessoas',
+        priceLabel: 'por pessoa'
       },
       paymentConfig: {
         enabled: true,
@@ -296,8 +350,8 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         stripeEnabled: true,
         pixEnabled: true,
         boletoEnabled: true,
-        serviceFee: 5,
-        cancellationPolicy: "Política flexível de cancelamento",
+        serviceFee: 8,
+        cancellationPolicy: "Cancelamento até 48h antes sem cobrança",
         paymentMethods: ["credit_card", "pix", "boleto"]
       }
     }

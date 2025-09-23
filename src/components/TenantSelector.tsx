@@ -63,15 +63,39 @@ const TenantSelector = () => {
                 <CardTitle className="group-hover:text-primary transition-colors">
                   {tenant.name}
                 </CardTitle>
-                <Badge variant="outline" className="mx-auto">
-                  {tenant.subdomain}.eventbook.com
-                </Badge>
+                <div className="flex flex-wrap justify-center gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs">
+                    {tenant.itemConfig?.type === 'mesa' ? '🍽️ Mesas' : 
+                     tenant.itemConfig?.type === 'ingresso' ? '🎫 Ingressos' :
+                     tenant.itemConfig?.type === 'area' ? '🏢 Áreas' :
+                     tenant.itemConfig?.type === 'servico' ? '🍴 Serviços' : '📋 Itens'}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    {tenant.subdomain}.eventbook.com
+                  </Badge>
+                </div>
               </CardHeader>
               
               <CardContent className="text-center">
-                <p className="text-muted-foreground mb-6 text-sm">
-                  Acesse a plataforma de eventos da {tenant.name} e descubra experiências únicas
+                <p className="text-muted-foreground mb-4 text-sm">
+                  {tenant.itemConfig?.type === 'mesa' ? 'Especializado em eventos com reserva de mesas e ambientação personalizada' :
+                   tenant.itemConfig?.type === 'ingresso' ? 'Plataforma de venda de ingressos para shows, festivais e eventos musicais' :
+                   tenant.itemConfig?.type === 'area' ? 'Locação de espaços premium para eventos corporativos e conferências' :
+                   tenant.itemConfig?.type === 'servico' ? 'Serviços gastronômicos e buffet para seus eventos especiais' :
+                   'Plataforma completa de gestão de eventos'}
                 </p>
+                
+                <div className="mb-6 p-3 bg-muted/50 rounded-lg">
+                  <div className="text-xs text-muted-foreground mb-2">Configuração:</div>
+                  <div className="text-sm font-medium">
+                    {tenant.itemConfig?.plural} • {tenant.itemConfig?.priceLabel}
+                  </div>
+                  {tenant.paymentConfig?.enabled && (
+                    <div className="text-xs text-green-600 mt-1">
+                      💳 Pagamento {tenant.paymentConfig.requirePayment ? 'obrigatório' : 'opcional'}
+                    </div>
+                  )}
+                </div>
                 
                 <Button 
                   variant={currentTenant?.id === tenant.id ? "default" : "outline"}
