@@ -14,6 +14,7 @@ import Settings from "./pages/admin/Settings";
 import EventList from "./pages/admin/events/EventList";
 import EventForm from "./pages/admin/events/EventForm";
 import EventView from "./pages/admin/events/EventView";
+import EventItems from "./pages/admin/events/EventItems";
 import ItemManagement from "./pages/admin/items/ItemManagement";
 import ItemForm from "./pages/admin/items/ItemForm";
 import ItemList from "./pages/admin/ItemList";
@@ -98,7 +99,7 @@ const App = () => (
                 path="/admin/events/:eventId/items" 
                 element={
                   <ProtectedRoute requireRole="admin">
-                    <ItemManagement />
+                    <EventItems />
                   </ProtectedRoute>
                 } 
               />

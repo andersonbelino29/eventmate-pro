@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTenant } from '@/contexts/TenantContext';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,12 +11,24 @@ import {
 import { 
   Calendar, ArrowLeft, Edit, Users, MapPin, DollarSign, 
   Clock, Tag, Eye, Share2, CheckCircle, AlertCircle,
-  User, Phone, Mail, CreditCard
+  User, Phone, Mail, CreditCard, Package
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const EventView = () => {
   const { id } = useParams();
+  const { currentTenant } = useTenant();
+
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
 
   // Mock data
   const event = {
@@ -356,10 +369,10 @@ const EventView = () => {
                 <CardTitle>Ações Rápidas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Link to={`/admin/events/${id}/tables`} className="block">
+                <Link to={`/admin/events/${id}/items`} className="block">
                   <Button variant="outline" className="w-full justify-start">
-                    <Users className="h-4 w-4 mr-2" />
-                    Gerenciar Mesas
+                    <Package className="h-4 w-4 mr-2" />
+                    Gerenciar {itemConfig.plural}
                   </Button>
                 </Link>
                 

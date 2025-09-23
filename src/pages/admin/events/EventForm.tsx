@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTenant } from '@/contexts/TenantContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,12 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Calendar, ArrowLeft, Save, Eye, Upload, MapPin, 
   Users, DollarSign, Clock, Tag, Image as ImageIcon,
-  CheckCircle, AlertCircle, Plus, Trash2, Package
+  CheckCircle, AlertCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -23,19 +20,7 @@ const EventForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { currentTenant } = useTenant();
   const isEditing = !!id;
-  
-  // Get item configuration from tenant
-  const itemConfig = currentTenant?.itemConfig || {
-    type: 'mesa',
-    singular: 'Mesa',
-    plural: 'Mesas',
-    requiresLocation: true,
-    requiresCapacity: true,
-    capacityLabel: 'pessoas',
-    priceLabel: 'por pessoa'
-  };
 
   // Form states
   const [formData, setFormData] = useState({
@@ -48,55 +33,11 @@ const EventForm = () => {
     address: isEditing ? 'Rua das Flores, 123 - Centro' : '',
     category: isEditing ? 'Casamento' : '',
     capacity: isEditing ? '200' : '',
-    pricingType: isEditing ? 'per_item' : 'per_item', // 'per_person', 'per_item', ou 'per_table'
+    pricingType: isEditing ? 'per_person' : 'per_person', // 'per_person' ou 'differentiated'
     pricePerPerson: isEditing ? '150' : '',
-    pricePerItem: isEditing ? '200' : '',
     status: isEditing ? 'Confirmado' : 'Rascunho',
-    image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : '',
-    selectedItems: isEditing ? ['1', '2'] : [], // IDs dos itens selecionados
-    tables: isEditing ? [
-      { id: '1', name: 'Mesa VIP', seats: 8, price: 200, available: 5 },
-      { id: '2', name: 'Mesa Premium', seats: 8, price: 180, available: 10 },
-      { id: '3', name: 'Mesa Standard', seats: 8, price: 150, available: 15 }
-    ] : [],
-    items: isEditing ? [
-      { id: '1', name: 'Ingresso VIP', capacity: 1, price: 250, location: 'Área VIP', type: 'VIP' },
-      { id: '2', name: 'Ingresso Premium', capacity: 1, price: 180, location: 'Área Premium', type: 'Premium' },
-      { id: '3', name: 'Ingresso Standard', capacity: 1, price: 120, location: 'Pista', type: 'Standard' }
-    ] : []
+    image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : ''
   });
-
-  // Mock available items based on tenant configuration
-  const availableItems = (() => {
-    switch (itemConfig.type) {
-      case 'mesa':
-        return [
-          { id: '1', name: 'Mesa VIP - Frente do Palco', capacity: 8, location: 'Área VIP', type: 'Mesa Premium', price: 250 },
-          { id: '2', name: 'Mesa Premium - Vista Jardim', capacity: 6, location: 'Área Premium', type: 'Mesa Premium', price: 200 },
-          { id: '3', name: 'Mesa Standard - Área Central', capacity: 10, location: 'Área Central', type: 'Mesa Standard', price: 150 },
-          { id: '4', name: 'Mesa Família - Área Infantil', capacity: 4, location: 'Área Família', type: 'Mesa Família', price: 180 },
-          { id: '5', name: 'Mesa Executiva - Sala Privada', capacity: 12, location: 'Sala Privada', type: 'Mesa Premium', price: 300 }
-        ];
-      case 'ingresso':
-        return [
-          { id: '1', name: 'Ingresso VIP', capacity: 1, location: 'Área VIP', type: 'VIP', price: 250 },
-          { id: '2', name: 'Ingresso Premium', capacity: 1, location: 'Área Premium', type: 'Premium', price: 180 },
-          { id: '3', name: 'Ingresso Standard', capacity: 1, location: 'Pista', type: 'Standard', price: 120 },
-          { id: '4', name: 'Ingresso Estudante', capacity: 1, location: 'Pista', type: 'Estudante', price: 80 }
-        ];
-      case 'area':
-        return [
-          { id: '1', name: 'Lounge VIP Premium', capacity: 20, location: 'Andar Superior', type: 'Lounge Premium', price: 200 },
-          { id: '2', name: 'Área Família', capacity: 15, location: 'Jardim', type: 'Área Família', price: 120 },
-          { id: '3', name: 'Camarote Executivo', capacity: 8, location: 'Área Central', type: 'Camarote', price: 350 }
-        ];
-      default:
-        return [
-          { id: '1', name: `${itemConfig.singular} Premium`, capacity: 8, location: 'Local Principal', type: 'Premium', price: 200 },
-          { id: '2', name: `${itemConfig.singular} Standard`, capacity: 6, location: 'Local Secundário', type: 'Standard', price: 150 }
-        ];
-    }
-  })();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -135,19 +76,6 @@ const EventForm = () => {
     if (!formData.category) newErrors.category = 'Categoria é obrigatória';
     if (!formData.capacity || parseInt(formData.capacity) <= 0) {
       newErrors.capacity = 'Capacidade deve ser maior que zero';
-    }
-    if (formData.pricingType === 'per_person') {
-      if (!formData.pricePerPerson || parseFloat(formData.pricePerPerson) < 0) {
-        newErrors.pricePerPerson = 'Preço por pessoa deve ser maior ou igual a zero';
-      }
-    } else if (formData.pricingType === 'per_item') {
-      if (!formData.pricePerItem || parseFloat(formData.pricePerItem) < 0) {
-        newErrors.pricePerItem = 'Preço por item deve ser maior ou igual a zero';
-      }
-    } else if (formData.pricingType === 'per_table') {
-      if (formData.selectedItems.length === 0) {
-        newErrors.selectedItems = 'Selecione pelo menos um item para o evento';
-      }
     }
 
     setErrors(newErrors);
@@ -411,21 +339,21 @@ const EventForm = () => {
               {/* Location */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Localização</CardTitle>
+                  <CardTitle>Local</CardTitle>
                   <CardDescription>
-                    Onde o evento acontecerá
+                    Defina onde o evento acontecerá
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="location">Local do Evento *</Label>
+                    <Label htmlFor="location">Nome do Local *</Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="location"
                         value={formData.location}
                         onChange={(e) => handleInputChange('location', e.target.value)}
-                        placeholder="Salão Principal, Auditório, etc."
+                        placeholder="Nome do salão, restaurante, etc."
                         className={`pl-10 ${errors.location ? 'border-red-500' : ''}`}
                       />
                     </div>
@@ -435,53 +363,54 @@ const EventForm = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="address">Endereço Completo</Label>
-                    <Input
+                    <Label htmlFor="address">Endereço</Label>
+                    <Textarea
                       id="address"
                       value={formData.address}
                       onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="Rua, número, bairro, cidade"
+                      placeholder="Endereço completo do evento"
+                      rows={2}
                     />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Image Upload */}
+              {/* Event Image */}
               <Card>
                 <CardHeader>
                   <CardTitle>Imagem do Evento</CardTitle>
                   <CardDescription>
-                    Adicione uma imagem atrativa para seu evento
+                    Adicione uma imagem para representar o evento
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    {formData.image && (
-                      <div className="relative">
-                        <img 
-                          src={formData.image} 
-                          alt="Preview do evento"
-                          className="w-full h-48 object-cover rounded-lg border"
-                        />
+                <CardContent className="space-y-4">
+                  {formData.image && (
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                      <img 
+                        src={formData.image} 
+                        alt="Preview do evento"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-center w-full">
+                    <label htmlFor="image-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+                        <p className="mb-2 text-sm text-muted-foreground">
+                          <span className="font-semibold">Clique para enviar</span> ou arraste uma imagem
+                        </p>
+                        <p className="text-xs text-muted-foreground">PNG, JPG ou JPEG (MAX. 5MB)</p>
                       </div>
-                    )}
-                    
-                    <div className="flex items-center space-x-4">
-                      <Input
-                        type="file"
+                      <input 
+                        id="image-upload" 
+                        type="file" 
+                        className="hidden" 
                         accept="image/*"
                         onChange={handleImageUpload}
-                        className="flex-1"
                       />
-                      <Button type="button" variant="outline">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload
-                      </Button>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground">
-                      Recomendado: 800x600px, JPG ou PNG, máximo 5MB
-                    </p>
+                    </label>
                   </div>
                 </CardContent>
               </Card>
@@ -498,9 +427,9 @@ const EventForm = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Label>Status Atual</Label>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-2">
                       {getStatusBadge(formData.status)}
                     </div>
                   </div>
@@ -512,16 +441,14 @@ const EventForm = () => {
                       onValueChange={(value) => handleInputChange('status', value)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o status" />
+                        <SelectValue placeholder="Rascunho..." />
                       </SelectTrigger>
                       <SelectContent>
                         {statuses.map((status) => (
                           <SelectItem key={status.value} value={status.value}>
-                            <div>
-                              <div className="font-medium">{status.label}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {status.description}
-                              </div>
+                            <div className="flex flex-col">
+                              <span>{status.label}</span>
+                              <span className="text-xs text-muted-foreground">{status.description}</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -529,32 +456,26 @@ const EventForm = () => {
                     </Select>
                   </div>
 
-                  <Separator />
-
                   <div className="space-y-2">
-                    <Label>Tipo de Cobrança *</Label>
+                    <Label htmlFor="pricingType">Tipo de Cobrança *</Label>
                     <Select 
                       value={formData.pricingType} 
                       onValueChange={(value) => handleInputChange('pricingType', value)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de cobrança" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="per_person">
-                          <div>
-                            <div className="font-medium">Por Pessoa</div>
-                            <div className="text-xs text-muted-foreground">
-                              Preço fixo por pessoa
-                            </div>
+                          <div className="flex flex-col">
+                            <span>Por Pessoa</span>
+                            <span className="text-xs text-muted-foreground">Preço único por participante</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="per_table">
-                          <div>
-                            <div className="font-medium">Por Mesa</div>
-                            <div className="text-xs text-muted-foreground">
-                              Preços diferenciados por mesa
-                            </div>
+                        <SelectItem value="differentiated">
+                          <div className="flex flex-col">
+                            <span>Preços Diferenciados</span>
+                            <span className="text-xs text-muted-foreground">Diferentes tipos de itens com preços variados</span>
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -563,157 +484,56 @@ const EventForm = () => {
 
                   {formData.pricingType === 'per_person' && (
                     <div className="space-y-2">
-                      <Label htmlFor="pricePerPerson">Preço por Pessoa (R$) *</Label>
+                      <Label htmlFor="pricePerPerson">Preço por Pessoa</Label>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="pricePerPerson"
                           type="number"
-                          step="0.01"
                           value={formData.pricePerPerson}
                           onChange={(e) => handleInputChange('pricePerPerson', e.target.value)}
-                          placeholder="150.00"
-                          className={`pl-10 ${errors.pricePerPerson ? 'border-red-500' : ''}`}
+                          placeholder="0,00"
+                          className="pl-10"
+                          step="0.01"
                         />
                       </div>
-                      {errors.pricePerPerson && (
-                        <p className="text-sm text-red-500">{errors.pricePerPerson}</p>
-                      )}
                     </div>
                   )}
 
-                  {formData.pricingType === 'per_table' && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label>Configuração de Mesas</Label>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            const newTable = {
-                              id: Date.now().toString(),
-                              name: `Mesa ${formData.tables.length + 1}`,
-                              seats: 8,
-                              price: 150,
-                              available: 1
-                            };
-                            setFormData(prev => ({
-                              ...prev,
-                              tables: [...prev.tables, newTable]
-                            }));
-                          }}
-                        >
-                          Adicionar Mesa
-                        </Button>
-                      </div>
-                      
-                      {formData.tables.length === 0 ? (
-                        <div className="text-center py-4 text-muted-foreground">
-                          <p>Nenhuma mesa configurada</p>
-                          <p className="text-sm">Adicione mesas para definir preços diferenciados</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3 max-h-60 overflow-y-auto">
-                          {formData.tables.map((table, index) => (
-                            <div key={table.id} className="flex items-center space-x-2 p-3 border rounded-lg">
-                              <div className="flex-1 grid grid-cols-3 gap-2 text-sm">
-                                <div>
-                                  <Label className="text-xs">Nome</Label>
-                                  <Input
-                                    value={table.name}
-                                    onChange={(e) => {
-                                      const newTables = [...formData.tables];
-                                      newTables[index].name = e.target.value;
-                                      setFormData(prev => ({ ...prev, tables: newTables }));
-                                    }}
-                                    className="h-8"
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs">Lugares</Label>
-                                  <Input
-                                    type="number"
-                                    value={table.seats}
-                                    onChange={(e) => {
-                                      const newTables = [...formData.tables];
-                                      newTables[index].seats = parseInt(e.target.value) || 0;
-                                      setFormData(prev => ({ ...prev, tables: newTables }));
-                                    }}
-                                    className="h-8"
-                                  />
-                                </div>
-                                <div>
-                                  <Label className="text-xs">Preço (R$)</Label>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    value={table.price}
-                                    onChange={(e) => {
-                                      const newTables = [...formData.tables];
-                                      newTables[index].price = parseFloat(e.target.value) || 0;
-                                      setFormData(prev => ({ ...prev, tables: newTables }));
-                                    }}
-                                    className="h-8"
-                                  />
-                                </div>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const newTables = formData.tables.filter((_, i) => i !== index);
-                                  setFormData(prev => ({ ...prev, tables: newTables }));
-                                }}
-                                className="text-red-500 hover:text-red-700"
-                              >
-                                ×
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {errors.tables && (
-                        <p className="text-sm text-red-500">{errors.tables}</p>
-                      )}
-                    </div>
-                  )}
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Dica:</strong> Eventos com status "Confirmado" ficarão visíveis na página pública e estarão disponíveis para reservas.
+                    </AlertDescription>
+                  </Alert>
                 </CardContent>
               </Card>
 
               {/* Quick Actions */}
-              {isEditing && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Ações Rápidas</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Link to={`/admin/events/${id}/tables`} className="block">
-                      <Button variant="outline" className="w-full justify-start">
-                        <Users className="h-4 w-4 mr-2" />
-                        Gerenciar Mesas
-                      </Button>
-                    </Link>
-                    
-                    <Link to={`/${formData.name.toLowerCase().replace(/\s+/g, '-')}/evento/${id}`} className="block">
-                      <Button variant="outline" className="w-full justify-start">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Ver Página Pública
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Help */}
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Dica:</strong> Eventos com status "Confirmado" aparecerão na página pública e estarão disponíveis para reservas.
-                </AlertDescription>
-              </Alert>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ações Rápidas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate('/admin/events')}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="w-full justify-start"
+                    disabled={isLoading}
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    {isLoading ? 'Salvando...' : (isEditing ? 'Atualizar Evento' : 'Criar Evento')}
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
