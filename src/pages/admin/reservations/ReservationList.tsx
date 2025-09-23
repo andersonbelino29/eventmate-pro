@@ -19,6 +19,8 @@ import {
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { usePagination } from "@/hooks/usePagination";
+import { CustomPagination } from "@/components/ui/custom-pagination";
 
 const ReservationList = () => {
   const { toast } = useToast();
@@ -142,6 +144,11 @@ const ReservationList = () => {
     const matchesEvent = eventFilter === 'all' || reservation.eventName === eventFilter;
     
     return matchesSearch && matchesStatus && matchesEvent;
+  });
+
+  const reservationsPagination = usePagination({
+    data: filteredReservations,
+    itemsPerPage: 10
   });
 
   const stats = {
@@ -293,6 +300,17 @@ const ReservationList = () => {
                 </SelectContent>
               </Select>
             </div>
+            
+            <CustomPagination
+              currentPage={reservationsPagination.currentPage}
+              totalPages={reservationsPagination.totalPages}
+              onPageChange={reservationsPagination.goToPage}
+              canGoPrevious={reservationsPagination.canGoPrevious}
+              canGoNext={reservationsPagination.canGoNext}
+              startIndex={reservationsPagination.startIndex}
+              endIndex={reservationsPagination.endIndex}
+              totalItems={reservationsPagination.totalItems}
+            />
           </CardContent>
         </Card>
 
@@ -320,7 +338,7 @@ const ReservationList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredReservations.map((reservation) => (
+                  {reservationsPagination.paginatedData.map((reservation) => (
                     <TableRow key={reservation.id}>
                       <TableCell>
                         <div>

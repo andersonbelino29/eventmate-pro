@@ -12,6 +12,8 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { usePagination } from "@/hooks/usePagination";
+import { CustomPagination } from "@/components/ui/custom-pagination";
 
 interface ContactMessage {
   id: number;
@@ -45,6 +47,11 @@ const ContactMessages = () => {
     const matchesStatus = statusFilter === "all" || message.status === statusFilter;
     
     return matchesSearch && matchesStatus;
+  });
+
+  const messagesPagination = usePagination({
+    data: filteredMessages,
+    itemsPerPage: 8
   });
 
   const updateMessageStatus = (messageId: number, newStatus: ContactMessage['status']) => {
@@ -223,8 +230,9 @@ const ContactMessages = () => {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredMessages.map((message) => (
+              <>
+                <div className="space-y-4">
+                  {messagesPagination.paginatedData.map((message) => (
                   <div key={message.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-2">
@@ -365,8 +373,20 @@ const ContactMessages = () => {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                
+                <CustomPagination
+                  currentPage={messagesPagination.currentPage}
+                  totalPages={messagesPagination.totalPages}
+                  onPageChange={messagesPagination.goToPage}
+                  canGoPrevious={messagesPagination.canGoPrevious}
+                  canGoNext={messagesPagination.canGoNext}
+                  startIndex={messagesPagination.startIndex}
+                  endIndex={messagesPagination.endIndex}
+                  totalItems={messagesPagination.totalItems}
+                />
+              </>
             )}
           </CardContent>
         </Card>

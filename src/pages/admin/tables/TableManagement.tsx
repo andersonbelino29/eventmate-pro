@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { usePagination } from "@/hooks/usePagination";
+import { CustomPagination } from "@/components/ui/custom-pagination";
 
 const TableManagement = () => {
   const { eventId } = useParams();
@@ -240,6 +242,11 @@ const TableManagement = () => {
     const matchesStatus = statusFilter === 'all' || table.status === statusFilter;
     
     return matchesSearch && matchesStatus;
+  });
+
+  const tablesPagination = usePagination({
+    data: filteredTables,
+    itemsPerPage: 10
   });
 
   const stats = {
@@ -498,7 +505,7 @@ const TableManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTables.map((table) => (
+                  {tablesPagination.paginatedData.map((table) => (
                     <TableRow key={table.id}>
                       <TableCell>
                         <div className="flex items-center">
@@ -564,6 +571,19 @@ const TableManagement = () => {
                 </TableBody>
               </Table>
             </div>
+
+            {filteredTables.length > 0 && (
+              <CustomPagination
+                currentPage={tablesPagination.currentPage}
+                totalPages={tablesPagination.totalPages}
+                onPageChange={tablesPagination.goToPage}
+                canGoPrevious={tablesPagination.canGoPrevious}
+                canGoNext={tablesPagination.canGoNext}
+                startIndex={tablesPagination.startIndex}
+                endIndex={tablesPagination.endIndex}
+                totalItems={tablesPagination.totalItems}
+              />
+            )}
 
             {filteredTables.length === 0 && (
               <div className="text-center py-12">

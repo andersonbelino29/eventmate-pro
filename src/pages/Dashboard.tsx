@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { usePagination } from "@/hooks/usePagination";
+import { CustomPagination } from "@/components/ui/custom-pagination";
 
 const Dashboard = () => {
   const { user, organization } = useAuth();
@@ -68,8 +70,53 @@ const Dashboard = () => {
       participants: 50,
       status: "Confirmado",
       revenue: "R$ 1.800"
+    },
+    {
+      id: 4,
+      name: "Workshop de Culinária",
+      date: "2024-03-01",
+      participants: 25,
+      status: "Confirmado",
+      revenue: "R$ 950"
+    },
+    {
+      id: 5,
+      name: "Reunião de Negócios",
+      date: "2024-03-05",
+      participants: 40,
+      status: "Pendente",
+      revenue: "R$ 2.200"
+    },
+    {
+      id: 6,
+      name: "Conferência Anual",
+      date: "2024-03-10",
+      participants: 200,
+      status: "Confirmado",
+      revenue: "R$ 12.000"
+    },
+    {
+      id: 7,
+      name: "Lançamento de Produto",
+      date: "2024-03-15",
+      participants: 120,
+      status: "Confirmado",
+      revenue: "R$ 6.800"
+    },
+    {
+      id: 8,
+      name: "Treinamento Corporativo",
+      date: "2024-03-20",
+      participants: 35,
+      status: "Pendente",
+      revenue: "R$ 1.500"
     }
   ];
+
+  const eventsPagination = usePagination({
+    data: recentEvents,
+    itemsPerPage: 5
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -171,7 +218,7 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentEvents.map((event) => (
+                  {eventsPagination.paginatedData.map((event) => (
                     <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <h3 className="font-semibold">{event.name}</h3>
@@ -214,6 +261,17 @@ const Dashboard = () => {
                     </div>
                   ))}
                 </div>
+                
+                <CustomPagination
+                  currentPage={eventsPagination.currentPage}
+                  totalPages={eventsPagination.totalPages}
+                  onPageChange={eventsPagination.goToPage}
+                  canGoPrevious={eventsPagination.canGoPrevious}
+                  canGoNext={eventsPagination.canGoNext}
+                  startIndex={eventsPagination.startIndex}
+                  endIndex={eventsPagination.endIndex}
+                  totalItems={eventsPagination.totalItems}
+                />
               </CardContent>
             </Card>
           </div>
