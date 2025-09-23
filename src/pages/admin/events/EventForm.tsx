@@ -46,7 +46,7 @@ const EventForm = () => {
     address: isEditing ? 'Rua das Flores, 123 - Centro' : '',
     category: isEditing ? 'Casamento' : '',
     capacity: isEditing ? '200' : '',
-    pricingType: isEditing ? 'per_item' : 'per_item', // Remove 'per_person' option
+    pricingType: 'per_item', // Always use item-based pricing based on tenant config
     status: isEditing ? 'Confirmado' : 'Rascunho',
     image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : ''
   });
@@ -468,57 +468,44 @@ const EventForm = () => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="pricingType">Tipo de Cobrança *</Label>
-                    <Select 
-                      value={formData.pricingType} 
-                      onValueChange={(value) => handleInputChange('pricingType', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="per_person">
-                          <div className="flex flex-col">
-                            <span>Por Pessoa</span>
-                            <span className="text-xs text-muted-foreground">Preço único por participante</span>
+                  <div className="space-y-4">
+                    <Label>Tipo de Cobrança *</Label>
+                    
+                    {/* Mostrar apenas uma opção baseada na configuração do tenant */}
+                    <div className="p-4 border rounded-lg border-primary bg-primary/5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <DollarSign className="h-5 w-5 text-primary" />
+                          <div>
+                            <div className="font-semibold">
+                              {itemConfig.type === 'mesa' ? 'Por Mesa' : 
+                               itemConfig.type === 'ingresso' ? 'Por Ingresso' :
+                               itemConfig.type === 'area' ? 'Por Área' : 
+                               `Por ${itemConfig.singular}`}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {itemConfig.type === 'mesa' ? 'Diferentes mesas com preços variados conforme capacidade e localização' :
+                               itemConfig.type === 'ingresso' ? 'Diferentes tipos de ingressos com preços variados' :
+                               itemConfig.type === 'area' ? 'Diferentes áreas com preços variados conforme capacidade' :
+                               `Diferentes ${itemConfig.plural.toLowerCase()} com preços variados`}
+                            </p>
                           </div>
-                        </SelectItem>
-                        <SelectItem value="differentiated">
-                          <div className="flex flex-col">
-                            <span>Por {itemConfig.singular}</span>
-                            <span className="text-xs text-muted-foreground">Diferentes tipos de {itemConfig.plural.toLowerCase()} com preços variados</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {formData.pricingType === 'per_person' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="pricePerPerson">Preço por Pessoa</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <div className="text-sm text-muted-foreground p-3 bg-muted/50 rounded">
-                          Os preços serão configurados individualmente na seção de {itemConfig.plural.toLowerCase()}.
                         </div>
+                        <CheckCircle className="h-6 w-6 text-primary" />
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Valor fixo cobrado por pessoa
-                      </p>
                     </div>
-                  )}
 
-                  {formData.pricingType === 'differentiated' && (
-                    <div className="space-y-2">
-                      <Label>Preços Diferenciados</Label>
-                      <div className="p-3 bg-muted rounded-lg">
-                        <p className="text-sm text-muted-foreground">
-                          Os preços serão definidos individualmente para cada {itemConfig.singular.toLowerCase()} na seção de gerenciamento de {itemConfig.plural.toLowerCase()}.
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Preços Diferenciados:</strong> Os preços serão definidos individualmente para cada 
+                        {itemConfig.type === 'mesa' ? ' mesa' : 
+                         itemConfig.type === 'ingresso' ? ' ingresso' :
+                         itemConfig.type === 'area' ? ' área' : 
+                         ` ${itemConfig.singular.toLowerCase()}`} na seção de gerenciamento de {itemConfig.plural.toLowerCase()}.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
 
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
