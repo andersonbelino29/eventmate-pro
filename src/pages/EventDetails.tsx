@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useTenant } from "@/contexts/TenantContext";
+import { useTenant } from "@/hooks/useTenant";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,20 @@ const EventDetails = () => {
     capacityLabel: 'pessoas',
     priceLabel: 'por pessoa'
   };
+
+  // Debug log and reset selection when tenant changes
+  useEffect(() => {
+    console.log('🔍 EventDetails - Current Tenant Changed:', {
+      name: currentTenant?.name,
+      subdomain: currentTenant?.subdomain,
+      itemType: itemConfig.type,
+      singular: itemConfig.singular,
+      plural: itemConfig.plural
+    });
+    
+    // Reset selection when tenant changes
+    setSelectedTable(null);
+  }, [currentTenant, itemConfig]);
 
   // Mock data - será substituído por dados do Supabase
   const event = {

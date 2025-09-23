@@ -388,7 +388,14 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       
       if (tenantId) {
         const tenant = tenants.find(t => t.id === tenantId);
-        console.log('🔍 Tenant detectado:', { tenantId, tenant: tenant?.name, itemType: tenant?.itemConfig?.type });
+        console.log('🔍 Tenant detectado:', { 
+          url: window.location.href,
+          tenantId, 
+          tenant: tenant?.name, 
+          subdomain: tenant?.subdomain,
+          itemType: tenant?.itemConfig?.type,
+          itemSingular: tenant?.itemConfig?.singular
+        });
         setCurrentTenant(tenant || null);
       } else {
         // Verificar localStorage para desenvolvimento
