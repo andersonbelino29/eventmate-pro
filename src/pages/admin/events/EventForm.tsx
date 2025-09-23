@@ -46,8 +46,7 @@ const EventForm = () => {
     address: isEditing ? 'Rua das Flores, 123 - Centro' : '',
     category: isEditing ? 'Casamento' : '',
     capacity: isEditing ? '200' : '',
-    pricingType: isEditing ? 'per_person' : 'per_person', // 'per_person' ou 'differentiated'
-    pricePerPerson: isEditing ? '150' : '',
+    pricingType: isEditing ? 'per_item' : 'per_item', // Remove 'per_person' option
     status: isEditing ? 'Confirmado' : 'Rascunho',
     image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : ''
   });
@@ -500,15 +499,9 @@ const EventForm = () => {
                       <Label htmlFor="pricePerPerson">Preço por Pessoa</Label>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="pricePerPerson"
-                          type="number"
-                          value={formData.pricePerPerson}
-                          onChange={(e) => handleInputChange('pricePerPerson', e.target.value)}
-                          placeholder="0,00"
-                          className="pl-10"
-                          step="0.01"
-                        />
+                        <div className="text-sm text-muted-foreground p-3 bg-muted/50 rounded">
+                          Os preços serão configurados individualmente na seção de {itemConfig.plural.toLowerCase()}.
+                        </div>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Valor fixo cobrado por pessoa

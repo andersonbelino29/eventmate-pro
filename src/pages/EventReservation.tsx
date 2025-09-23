@@ -84,7 +84,7 @@ const EventReservation = () => {
           location: "Espaço Villa Eventos",
           address: "Rua das Flores, 123 - Vila Madalena, São Paulo - SP",
           capacity: 200,
-          pricingType: 'per_table',
+          pricingType: 'per_item',
           image: "/src/assets/event-wedding.jpg",
           includes: [
             "Decoração completa incluída",
@@ -162,7 +162,7 @@ const EventReservation = () => {
             capacity: 8, 
             location: "Área VIP", 
             price: 200, 
-            pricePerPerson: true,
+            pricePerPerson: false,
             status: "Disponível", 
             type: "VIP",
             quantity: 1,
@@ -175,7 +175,7 @@ const EventReservation = () => {
             capacity: 6, 
             location: "Área Premium", 
             price: 180, 
-            pricePerPerson: true,
+            pricePerPerson: false,
             status: "Disponível", 
             type: "Premium",
             quantity: 1,
@@ -188,7 +188,7 @@ const EventReservation = () => {
             capacity: 10, 
             location: "Área Central", 
             price: 150, 
-            pricePerPerson: true,
+            pricePerPerson: false,
             status: "Disponível", 
             type: "Standard",
             quantity: 1,
@@ -201,7 +201,7 @@ const EventReservation = () => {
             capacity: 4, 
             location: "Área Família", 
             price: 170, 
-            pricePerPerson: true,
+            pricePerPerson: false,
             status: "Reservada", 
             type: "Família",
             quantity: 1,
@@ -272,7 +272,7 @@ const EventReservation = () => {
             capacity: 20, 
             location: "Andar Superior", 
             price: 200, 
-            pricePerPerson: true,
+            pricePerPerson: false,
             status: "Disponível", 
             type: "Lounge Premium",
             quantity: 3,
@@ -285,7 +285,7 @@ const EventReservation = () => {
             capacity: 15, 
             location: "Jardim", 
             price: 120, 
-            pricePerPerson: true,
+            pricePerPerson: false,
             status: "Disponível", 
             type: "Área Família",
             quantity: 5,
@@ -298,7 +298,7 @@ const EventReservation = () => {
             capacity: 8, 
             location: "Área Central", 
             price: 350, 
-            pricePerPerson: true,
+            pricePerPerson: false,
             status: "Reservada", 
             type: "Camarote",
             quantity: 2,
@@ -326,19 +326,12 @@ const EventReservation = () => {
   })();
 
   const calculatePrice = (item: any, quantity: number = selectedQuantity) => {
-    if (item.pricePerPerson) {
-      return item.price * item.capacity * quantity;
-    } else {
-      return item.price * quantity;
-    }
+    // Always calculate based on item price and quantity for the new system
+    return item.price * quantity;
   };
 
   const formatPrice = (item: any) => {
-    if (item.pricePerPerson) {
-      return `R$ ${item.price.toFixed(2)}/${itemConfig.priceLabel}`;
-    } else {
-      return `R$ ${item.price.toFixed(2)}`;
-    }
+    return `R$ ${item.price.toFixed(2)}`;
   };
 
   const getAvailabilityText = (item: any) => {
@@ -449,17 +442,12 @@ const EventReservation = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Selecione {itemConfig.type === 'ingresso' ? 'seu' : 'sua'} {itemConfig.singular}</CardTitle>
-                  {event.pricingType === 'per_person' && (
-                    <div className="text-xl font-bold text-primary mb-2">
-                      R$ {items[0]?.price || 150}/pessoa
-                    </div>
-                  )}
                   <CardDescription>
                     {itemConfig.type === 'ingresso' 
-                      ? `Opções de ${itemConfig.plural}`
+                      ? `Opções de ${itemConfig.plural} com preços diferenciados`
                       : itemConfig.type === 'mesa'
-                      ? `Opções de ${itemConfig.plural}`
-                      : 'Escolha a opção que melhor se adequa às suas necessidades'
+                      ? `Opções de ${itemConfig.plural} com preços conforme capacidade`
+                      : `Opções de ${itemConfig.plural} com preços diferenciados`
                     }
                   </CardDescription>
                 </CardHeader>
@@ -540,17 +528,12 @@ const EventReservation = () => {
                     Selecione {itemConfig.type === 'ingresso' ? 'seu' : 'sua'} {itemConfig.singular}
                     <DollarSign className="h-5 w-5 text-primary" />
                   </CardTitle>
-                  {event.pricingType === 'per_person' && (
-                    <div className="text-lg font-bold text-primary">
-                      R$ {items[0]?.price || 150}/pessoa
-                    </div>
-                  )}
                   <CardDescription>
                     {itemConfig.type === 'ingresso' 
-                      ? 'Escolha o tipo de ingresso que melhor se adequa às suas necessidades'
+                      ? `Escolha seu ${itemConfig.singular.toLowerCase()} com preços diferenciados`
                       : itemConfig.type === 'mesa'
-                      ? 'Escolha a mesa que melhor se adequa às suas necessidades'
-                      : 'Escolha a opção que melhor se adequa às suas necessidades'
+                      ? `Escolha sua ${itemConfig.singular.toLowerCase()} conforme capacidade`
+                      : `Escolha a opção com preços diferenciados`
                     }
                   </CardDescription>
                 </CardHeader>

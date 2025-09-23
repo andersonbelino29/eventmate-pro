@@ -145,9 +145,8 @@ const EventDetails = () => {
             <Card className="sticky top-24 bg-gradient-card border-0 shadow-elegant">
               <CardHeader>
                 <CardTitle className="text-center">Selecione sua Mesa</CardTitle>
-                <div className="text-center">
-                  <span className="text-3xl font-bold text-primary">R$ {event.price}</span>
-                  <span className="text-muted-foreground">/pessoa</span>
+                <div className="text-center text-sm text-muted-foreground">
+                  Preços diferenciados por mesa
                 </div>
               </CardHeader>
               
@@ -169,7 +168,7 @@ const EventDetails = () => {
                           <div>
                             <div className="font-medium">{table.name}</div>
                             <div className="text-sm text-muted-foreground">
-                              {table.capacity} pessoas • R$ {table.price}/pessoa
+                              {table.capacity} pessoas • R$ {table.price * table.capacity} total
                             </div>
                           </div>
                           <Badge variant="outline" className="text-xs">
