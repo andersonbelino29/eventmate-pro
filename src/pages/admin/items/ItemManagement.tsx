@@ -335,119 +335,12 @@ const ItemManagement = () => {
               </div>
             </div>
             
-            <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={resetForm}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova {itemConfig.singular}
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Criar Nova {itemConfig.singular}</DialogTitle>
-                  <DialogDescription>
-                    Configure uma nova {itemConfig.singular.toLowerCase()} para o evento
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome da {itemConfig.singular} *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder={`Ex: ${itemConfig.singular} Premium`}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    {itemConfig.requiresCapacity && (
-                      <div className="space-y-2">
-                        <Label htmlFor="capacity">Capacidade ({itemConfig.capacityLabel}) *</Label>
-                        <Input
-                          id="capacity"
-                          type="number"
-                          value={formData.capacity}
-                          onChange={(e) => handleInputChange('capacity', e.target.value)}
-                          placeholder="8"
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Preço {itemConfig.priceLabel} (R$) *</Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        step="0.01"
-                        value={formData.price}
-                        onChange={(e) => handleInputChange('price', e.target.value)}
-                        placeholder="200.00"
-                      />
-                    </div>
-                  </div>
-
-                  {itemConfig.requiresLocation && (
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Localização *</Label>
-                      <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a área" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {locations.map((location) => (
-                            <SelectItem key={location} value={location}>
-                              <div className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-2" />
-                                {location}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Tipo da {itemConfig.singular} *</Label>
-                    <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {itemTypes.map((type) => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statuses.map((status) => (
-                          <SelectItem key={status} value={status}>{status}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-                    Cancelar
-                  </Button>
-                  <Button onClick={handleCreateItem}>
-                    Criar {itemConfig.singular}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <Link to={`/admin/events/${eventId}/items/new`}>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nova {itemConfig.singular}
+              </Button>
+            </Link>
           </div>
         </div>
       </header>

@@ -15,6 +15,7 @@ import EventList from "./pages/admin/events/EventList";
 import EventForm from "./pages/admin/events/EventForm";
 import EventView from "./pages/admin/events/EventView";
 import ItemManagement from "./pages/admin/items/ItemManagement";
+import ItemForm from "./pages/admin/items/ItemForm";
 import ContactMessages from "./pages/admin/ContactMessages";
 import Reports from "./pages/admin/Reports";
 import ReservationList from "./pages/admin/reservations/ReservationList";
@@ -96,6 +97,22 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="admin">
                     <ItemManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/events/:eventId/items/new" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <ItemForm />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/events/:eventId/items/:itemId/edit" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <ItemForm />
                   </ProtectedRoute>
                 } 
               />
