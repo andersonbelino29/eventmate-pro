@@ -307,17 +307,10 @@ const Dashboard = () => {
                   </Button>
                 </Link>
                 
-                <Link to="/admin/events/1/items/new" className="block">
+                <Link to="/admin/items" className="block">
                   <Button variant="outline" className="w-full justify-start">
                     <Package className="h-4 w-4 mr-2" />
-                    Cadastrar Itens
-                  </Button>
-                </Link>
-                
-                <Link to="/admin/events/1/items" className="block">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Table className="h-4 w-4 mr-2" />
-                    Gerenciar Mesas
+                    Gerenciar Itens
                   </Button>
                 </Link>
                 
