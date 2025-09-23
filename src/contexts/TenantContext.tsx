@@ -41,7 +41,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       id: 'villa-eventos',
       name: 'Villa Eventos',
       subdomain: 'villa',
-      logo: '',
+      logo: 'https://images.unsplash.com/photo-1519167758481-83f29c8ae8a4?w=200&h=200&fit=crop&crop=center',
       primaryColor: '263 70% 50%',
       secondaryColor: '280 70% 60%'
     },
@@ -49,7 +49,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       id: 'buffet-alegria',
       name: 'Buffet Alegria',
       subdomain: 'alegria',
-      logo: '',
+      logo: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop&crop=center',
       primaryColor: '120 70% 50%',
       secondaryColor: '140 70% 60%'
     },
@@ -57,7 +57,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       id: 'centro-convencoes',
       name: 'Centro de Convenções Premium',
       subdomain: 'premium',
-      logo: '',
+      logo: 'https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=200&h=200&fit=crop&crop=center',
       primaryColor: '210 70% 50%',
       secondaryColor: '230 70% 60%'
     }
@@ -124,8 +124,20 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       if (tenant.secondaryColor) {
         root.style.setProperty('--primary-glow', tenant.secondaryColor);
       }
+      
+      // Aplicar cores no gradiente também
+      if (tenant.primaryColor && tenant.secondaryColor) {
+        root.style.setProperty('--gradient-primary', 
+          `linear-gradient(135deg, hsl(${tenant.primaryColor}), hsl(${tenant.secondaryColor}))`);
+      }
     } else {
       localStorage.removeItem('currentTenantId');
+      // Reset to default theme
+      const root = document.documentElement;
+      root.style.setProperty('--primary', '263 70% 50%');
+      root.style.setProperty('--primary-glow', '280 70% 60%');
+      root.style.setProperty('--gradient-primary', 
+        'linear-gradient(135deg, hsl(263 70% 50%), hsl(280 70% 60%))');
     }
   };
 

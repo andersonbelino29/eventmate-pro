@@ -44,9 +44,12 @@ const TenantSelector = () => {
             >
               <CardHeader className="text-center">
                 <div className="relative mx-auto mb-4">
-                  <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center">
+                  <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center"
+                       style={{
+                         background: `linear-gradient(135deg, hsl(${tenant.primaryColor || '263 70% 50%'}), hsl(${tenant.secondaryColor || '280 70% 60%'}))`
+                       }}>
                     {tenant.logo ? (
-                      <img src={tenant.logo} alt={tenant.name} className="w-12 h-12 rounded-full" />
+                      <img src={tenant.logo} alt={tenant.name} className="w-12 h-12 rounded-full object-cover" />
                     ) : (
                       <Building2 className="w-8 h-8 text-white" />
                     )}

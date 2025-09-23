@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import Pricing from "./pages/Pricing";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/admin/Settings";
 import TenantSelector from "./components/TenantSelector";
 import TenantApp from "./components/TenantApp";
 import NotFound from "./pages/NotFound";
@@ -33,6 +34,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="admin">
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/settings" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <Settings />
                   </ProtectedRoute>
                 } 
               />

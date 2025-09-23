@@ -15,8 +15,26 @@ const Navbar = () => {
           <Link to={basePath || "/"} className="flex items-center space-x-2">
             {currentTenant ? (
               <>
-                <Building2 className="h-8 w-8 text-primary" />
-                <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                {currentTenant.logo ? (
+                  <img 
+                    src={currentTenant.logo} 
+                    alt={currentTenant.name} 
+                    className="h-8 w-8 rounded object-cover"
+                  />
+                ) : (
+                  <Building2 className="h-8 w-8 text-primary" />
+                )}
+                <span 
+                  className="text-2xl font-bold"
+                  style={{
+                    background: currentTenant.primaryColor && currentTenant.secondaryColor 
+                      ? `linear-gradient(135deg, hsl(${currentTenant.primaryColor}), hsl(${currentTenant.secondaryColor}))`
+                      : 'linear-gradient(135deg, hsl(263 70% 50%), hsl(280 70% 60%))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
                   {currentTenant.name}
                 </span>
               </>
