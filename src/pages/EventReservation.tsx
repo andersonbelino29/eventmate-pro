@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTenant } from '@/contexts/TenantContext';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ const EventReservation = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { currentTenant } = useTenant();
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
@@ -23,6 +25,36 @@ const EventReservation = () => {
     phone: '',
     observations: ''
   });
+
+  const handleReservationWithoutPayment = async () => {
+    try {
+      // Simulate saving reservation to database
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Reserva confirmada!",
+        description: `Sua reserva para ${selectedTable.name} foi confirmada com sucesso.`,
+      });
+      
+      // Redirect to success page
+      navigate('/reservation-success', { 
+        state: { 
+          reservationData: {
+            customerData,
+            selectedTable,
+            event
+          },
+          paymentRequired: false
+        } 
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao processar sua reserva. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Mock event data
   const event = {
@@ -252,12 +284,26 @@ const EventReservation = () => {
                     event
                   }));
                   
-                  // Redirect to payment
-                  navigate(`/payment-checkout/${eventId}/${selectedTable.id}`);
+                  // Check if payment is required
+                  const paymentConfig = currentTenant?.paymentConfig;
+                  
+                  if (paymentConfig?.enabled && paymentConfig?.requirePayment) {
+                    // Redirect to payment
+                    navigate(`/payment-checkout/${eventId}/${selectedTable.id}`);
+                  } else if (paymentConfig?.enabled && !paymentConfig?.requirePayment) {
+                    // Show payment option modal
+                    navigate(`/reserva-opcao-pagamento/${eventId}/${selectedTable.id}`);
+                  } else {
+                    // No payment required, save reservation directly
+                    handleReservationWithoutPayment();
+                  }
                 }}
               >
                 <CreditCard className="h-4 w-4 mr-2" />
-                Finalizar Pagamento
+                {currentTenant?.paymentConfig?.enabled && currentTenant?.paymentConfig?.requirePayment 
+                  ? 'Finalizar Pagamento'
+                  : 'Confirmar Reserva'
+                }
               </Button>
             </DialogFooter>
           </DialogContent>

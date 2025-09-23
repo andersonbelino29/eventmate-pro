@@ -21,8 +21,10 @@ import ReservationList from "./pages/admin/reservations/ReservationList";
 import ReservationForm from "./pages/admin/reservations/ReservationForm";
 import EventReservation from "./pages/EventReservation";
 import PaymentCheckout from "./pages/PaymentCheckout";
+import ReservationPaymentOption from "./pages/ReservationPaymentOption";
 import ReservationDetails from "./pages/ReservationDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import ReservationSuccess from "./pages/ReservationSuccess";
 import TenantSelector from "./components/TenantSelector";
 import TenantApp from "./components/TenantApp";
 import NotFound from "./pages/NotFound";
@@ -147,8 +149,10 @@ const App = () => (
               />
               <Route path="/evento/:eventId/reservar" element={<EventReservation />} />
               <Route path="/payment-checkout/:eventId/:itemId" element={<PaymentCheckout />} />
+              <Route path="/reserva-opcao-pagamento/:eventId/:itemId" element={<ReservationPaymentOption />} />
               <Route path="/reserva-detalhes/:eventId/:itemId" element={<ReservationDetails />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/reservation-success" element={<ReservationSuccess />} />
               <Route path="/select-tenant" element={<TenantSelector />} />
               <Route path="/:tenantSlug/*" element={<TenantApp />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

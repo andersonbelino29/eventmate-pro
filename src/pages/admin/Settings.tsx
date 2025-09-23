@@ -48,6 +48,15 @@ const Settings = () => {
   const [contactAddress, setContactAddress] = useState(currentTenant?.contactPage?.address || '');
   const [contactHours, setContactHours] = useState(currentTenant?.contactPage?.businessHours?.map(h => `${h.day}: ${h.time}`).join('\n') || 'Segunda a Sexta: 9h às 18h');
   
+  // Payment configurations
+  const [paymentEnabled, setPaymentEnabled] = useState(currentTenant?.paymentConfig?.enabled ?? false);
+  const [requirePayment, setRequirePayment] = useState(currentTenant?.paymentConfig?.requirePayment ?? false);
+  const [stripeEnabled, setStripeEnabled] = useState(currentTenant?.paymentConfig?.stripeEnabled ?? false);
+  const [pixEnabled, setPixEnabled] = useState(currentTenant?.paymentConfig?.pixEnabled ?? false);
+  const [boletoEnabled, setBoletoEnabled] = useState(currentTenant?.paymentConfig?.boletoEnabled ?? false);
+  const [serviceFee, setServiceFee] = useState(currentTenant?.paymentConfig?.serviceFee?.toString() || '10');
+  const [cancellationPolicy, setCancellationPolicy] = useState(currentTenant?.paymentConfig?.cancellationPolicy || 'Cancelamento gratuito até 24h antes do evento');
+  
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -103,6 +112,20 @@ const Settings = () => {
             return { day: day?.trim() || '', time: time?.trim() || '' };
           }).filter(h => h.day && h.time),
           socialMedia: currentTenant?.contactPage?.socialMedia || {}
+        },
+        paymentConfig: {
+          enabled: paymentEnabled,
+          requirePayment: requirePayment,
+          stripeEnabled: stripeEnabled,
+          pixEnabled: pixEnabled,
+          boletoEnabled: boletoEnabled,
+          serviceFee: parseFloat(serviceFee) || 0,
+          cancellationPolicy: cancellationPolicy,
+          paymentMethods: [
+            ...(stripeEnabled ? ['credit_card', 'debit_card'] : []),
+            ...(pixEnabled ? ['pix'] : []),
+            ...(boletoEnabled ? ['boleto'] : [])
+          ]
         }
       };
       
@@ -186,9 +209,10 @@ const Settings = () => {
         )}
 
         <Tabs defaultValue="brand" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="brand">Marca & Visual</TabsTrigger>
             <TabsTrigger value="pages">Páginas</TabsTrigger>
+            <TabsTrigger value="payment">Pagamentos</TabsTrigger>
             <TabsTrigger value="domain">Domínio</TabsTrigger>
             <TabsTrigger value="plan">Plano</TabsTrigger>
             <TabsTrigger value="team">Equipe</TabsTrigger>
@@ -546,6 +570,154 @@ const Settings = () => {
                     defaultValue="Segunda à Sexta: 09:00 - 18:00&#10;Sábados: 09:00 - 14:00&#10;Domingos: Fechado"
                   />
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Payment Tab */}
+          <TabsContent value="payment" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  Configurações de Pagamento
+                </CardTitle>
+                <CardDescription>
+                  Configure como os pagamentos serão processados nas reservas
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Payment Toggle */}
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h3 className="font-medium">Habilitar Pagamentos</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Ativar sistema de pagamentos para reservas
+                    </p>
+                  </div>
+                  <Switch 
+                    checked={paymentEnabled} 
+                    onCheckedChange={setPaymentEnabled}
+                  />
+                </div>
+
+                {paymentEnabled && (
+                  <>
+                    {/* Require Payment */}
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-medium">Exigir Pagamento</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Se desabilitado, permitirá reservas sem pagamento (opcional)
+                        </p>
+                      </div>
+                      <Switch 
+                        checked={requirePayment} 
+                        onCheckedChange={setRequirePayment}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    {/* Payment Methods */}
+                    <div className="space-y-4">
+                      <h3 className="font-medium">Métodos de Pagamento</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">Stripe</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Cartão de crédito/débito
+                            </p>
+                          </div>
+                          <Switch 
+                            checked={stripeEnabled} 
+                            onCheckedChange={setStripeEnabled}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">PIX</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Pagamento instantâneo
+                            </p>
+                          </div>
+                          <Switch 
+                            checked={pixEnabled} 
+                            onCheckedChange={setPixEnabled}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">Boleto</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Boleto bancário
+                            </p>
+                          </div>
+                          <Switch 
+                            checked={boletoEnabled} 
+                            onCheckedChange={setBoletoEnabled}
+                          />
+                        </div>
+                      </div>
+
+                      {!stripeEnabled && !pixEnabled && !boletoEnabled && (
+                        <Alert>
+                          <Info className="h-4 w-4" />
+                          <AlertDescription>
+                            Pelo menos um método de pagamento deve estar habilitado se os pagamentos estiverem ativos.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    {/* Service Fee */}
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="service-fee">Taxa de Serviço (%)</Label>
+                        <Input
+                          id="service-fee"
+                          type="number"
+                          min="0"
+                          max="50"
+                          step="0.1"
+                          value={serviceFee}
+                          onChange={(e) => setServiceFee(e.target.value)}
+                          placeholder="10"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Taxa adicional aplicada sobre o valor da reserva (ex: 10% = 10)
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="cancellation-policy">Política de Cancelamento</Label>
+                        <Textarea
+                          id="cancellation-policy"
+                          value={cancellationPolicy}
+                          onChange={(e) => setCancellationPolicy(e.target.value)}
+                          placeholder="Cancelamento gratuito até 24h antes do evento"
+                          rows={3}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Esta informação será exibida para os clientes durante o processo de reserva
+                        </p>
+                      </div>
+                    </div>
+
+                    <Alert>
+                      <CreditCard className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Importante:</strong> Para usar o Stripe, certifique-se de que suas chaves API estão configuradas corretamente nas variáveis de ambiente.
+                      </AlertDescription>
+                    </Alert>
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

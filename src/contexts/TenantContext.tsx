@@ -43,6 +43,16 @@ export interface Tenant {
       linkedin?: string;
     };
   };
+  paymentConfig?: {
+    enabled: boolean;
+    requirePayment: boolean;
+    stripeEnabled: boolean;
+    pixEnabled: boolean;
+    boletoEnabled: boolean;
+    serviceFee: number; // Percentage
+    cancellationPolicy: string;
+    paymentMethods: string[];
+  };
 }
 
 interface TenantContextType {
@@ -143,6 +153,16 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           facebook: "villa.eventos.oficial",
           linkedin: "villa-eventos"
         }
+      },
+      paymentConfig: {
+        enabled: true,
+        requirePayment: true,
+        stripeEnabled: true,
+        pixEnabled: false,
+        boletoEnabled: false,
+        serviceFee: 10,
+        cancellationPolicy: "Cancelamento gratuito até 24h antes do evento",
+        paymentMethods: ["credit_card", "debit_card"]
       }
     },
     {
@@ -215,6 +235,16 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           instagram: "@buffetalegria",
           facebook: "buffet.alegria.oficial"
         }
+      },
+      paymentConfig: {
+        enabled: false,
+        requirePayment: false,
+        stripeEnabled: false,
+        pixEnabled: false,
+        boletoEnabled: false,
+        serviceFee: 0,
+        cancellationPolicy: "Reservas sem pagamento antecipado",
+        paymentMethods: []
       }
     },
     {
@@ -223,7 +253,17 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       subdomain: 'premium',
       logo: 'https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=200&h=200&fit=crop&crop=center',
       primaryColor: '210 70% 50%',
-      secondaryColor: '230 70% 60%'
+      secondaryColor: '230 70% 60%',
+      paymentConfig: {
+        enabled: true,
+        requirePayment: false,
+        stripeEnabled: true,
+        pixEnabled: true,
+        boletoEnabled: true,
+        serviceFee: 5,
+        cancellationPolicy: "Política flexível de cancelamento",
+        paymentMethods: ["credit_card", "pix", "boleto"]
+      }
     }
   ]);
 
