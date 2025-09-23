@@ -44,29 +44,29 @@ const EventItems = () => {
     switch (itemConfig.type) {
       case 'mesa':
         return [
-          { id: '1', name: 'Mesa VIP - Frente do Palco', capacity: 8, location: 'Área VIP', type: 'Mesa Premium', price: 250, active: true },
-          { id: '2', name: 'Mesa Premium - Vista Jardim', capacity: 6, location: 'Área Premium', type: 'Mesa Premium', price: 200, active: true },
-          { id: '3', name: 'Mesa Standard - Área Central', capacity: 10, location: 'Área Central', type: 'Mesa Standard', price: 150, active: true },
-          { id: '4', name: 'Mesa Família - Área Infantil', capacity: 4, location: 'Área Família', type: 'Mesa Família', price: 180, active: true },
-          { id: '5', name: 'Mesa Executiva - Sala Privada', capacity: 12, location: 'Sala Privada', type: 'Mesa Premium', price: 300, active: false }
+          { id: '1', name: 'Mesa VIP - Frente do Palco', capacity: 8, location: 'Área VIP', type: 'Mesa Premium', price: 250, quantity: 1, reserved: 0, active: true },
+          { id: '2', name: 'Mesa Premium - Vista Jardim', capacity: 6, location: 'Área Premium', type: 'Mesa Premium', price: 200, quantity: 1, reserved: 0, active: true },
+          { id: '3', name: 'Mesa Standard - Área Central', capacity: 10, location: 'Área Central', type: 'Mesa Standard', price: 150, quantity: 1, reserved: 0, active: true },
+          { id: '4', name: 'Mesa Família - Área Infantil', capacity: 4, location: 'Área Família', type: 'Mesa Família', price: 180, quantity: 1, reserved: 0, active: true },
+          { id: '5', name: 'Mesa Executiva - Sala Privada', capacity: 12, location: 'Sala Privada', type: 'Mesa Premium', price: 300, quantity: 1, reserved: 1, active: false }
         ];
       case 'ingresso':
         return [
-          { id: '1', name: 'Ingresso VIP', capacity: 1, location: 'Área VIP', type: 'VIP', price: 250, active: true },
-          { id: '2', name: 'Ingresso Premium', capacity: 1, location: 'Área Premium', type: 'Premium', price: 180, active: true },
-          { id: '3', name: 'Ingresso Standard', capacity: 1, location: 'Pista', type: 'Standard', price: 120, active: true },
-          { id: '4', name: 'Ingresso Estudante', capacity: 1, location: 'Pista', type: 'Estudante', price: 80, active: false }
+          { id: '1', name: 'Ingresso VIP', capacity: 1, location: 'Área VIP', type: 'VIP', price: 250, quantity: 50, reserved: 12, active: true },
+          { id: '2', name: 'Ingresso Premium', capacity: 1, location: 'Área Premium', type: 'Premium', price: 180, quantity: 200, reserved: 45, active: true },
+          { id: '3', name: 'Ingresso Standard', capacity: 1, location: 'Pista', type: 'Standard', price: 120, quantity: 500, reserved: 89, active: true },
+          { id: '4', name: 'Ingresso Estudante', capacity: 1, location: 'Pista', type: 'Estudante', price: 80, quantity: 100, reserved: 23, active: false }
         ];
       case 'area':
         return [
-          { id: '1', name: 'Lounge VIP Premium', capacity: 20, location: 'Andar Superior', type: 'Lounge Premium', price: 200, active: true },
-          { id: '2', name: 'Área Família', capacity: 15, location: 'Jardim', type: 'Área Família', price: 120, active: true },
-          { id: '3', name: 'Camarote Executivo', capacity: 8, location: 'Área Central', type: 'Camarote', price: 350, active: true }
+          { id: '1', name: 'Lounge VIP Premium', capacity: 20, location: 'Andar Superior', type: 'Lounge Premium', price: 200, quantity: 3, reserved: 1, active: true },
+          { id: '2', name: 'Área Família', capacity: 15, location: 'Jardim', type: 'Área Família', price: 120, quantity: 5, reserved: 2, active: true },
+          { id: '3', name: 'Camarote Executivo', capacity: 8, location: 'Área Central', type: 'Camarote', price: 350, quantity: 2, reserved: 2, active: true }
         ];
       default:
         return [
-          { id: '1', name: `${itemConfig.singular} Premium`, capacity: 8, location: 'Local Principal', type: 'Premium', price: 200, active: true },
-          { id: '2', name: `${itemConfig.singular} Standard`, capacity: 6, location: 'Local Secundário', type: 'Standard', price: 150, active: true }
+          { id: '1', name: `${itemConfig.singular} Premium`, capacity: 8, location: 'Local Principal', type: 'Premium', price: 200, quantity: 5, reserved: 1, active: true },
+          { id: '2', name: `${itemConfig.singular} Standard`, capacity: 6, location: 'Local Secundário', type: 'Standard', price: 150, quantity: 10, reserved: 3, active: true }
         ];
     }
   });
@@ -265,6 +265,16 @@ const EventItems = () => {
                                 <DollarSign className="h-3 w-3" />
                                 <span>R$ {item.price.toFixed(2)} {itemConfig.priceLabel}</span>
                               </div>
+
+                              <div className="flex items-center space-x-1">
+                                <Package className="h-3 w-3" />
+                                <span>
+                                  {itemConfig.type === 'mesa' 
+                                    ? `${item.quantity} mesa${item.quantity > 1 ? 's' : ''} • ${item.reserved} reservada${item.reserved !== 1 ? 's' : ''}`
+                                    : `${item.quantity - item.reserved}/${item.quantity} disponíveis`
+                                  }
+                                </span>
+                              </div>
                             </div>
 
                             {!item.active && (
@@ -335,12 +345,32 @@ const EventItems = () => {
                   <Separator />
 
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Capacidade Total:</h4>
-                    <div className="text-sm">
-                      {selectedItems.reduce((total, itemId) => {
-                        const item = availableItems.find(i => i.id === itemId);
-                        return total + (item?.capacity || 0);
-                      }, 0)} {itemConfig.capacityLabel}
+                    <h4 className="font-semibold text-sm">Estatísticas:</h4>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span>Total de {itemConfig.plural.toLowerCase()}:</span>
+                        <span>{selectedItems.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>
+                          {itemConfig.type === 'mesa' ? 'Mesas disponíveis:' : 'Unidades disponíveis:'}
+                        </span>
+                        <span>
+                          {selectedItems.reduce((total, itemId) => {
+                            const item = availableItems.find(i => i.id === itemId);
+                            return total + (item ? (item.quantity - item.reserved) : 0);
+                          }, 0)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Capacidade total:</span>
+                        <span>
+                          {selectedItems.reduce((total, itemId) => {
+                            const item = availableItems.find(i => i.id === itemId);
+                            return total + (item ? (item.capacity * (item.quantity - item.reserved)) : 0);
+                          }, 0)} {itemConfig.capacityLabel}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

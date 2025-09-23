@@ -18,6 +18,7 @@ const EventReservation = () => {
   const { toast } = useToast();
   const { currentTenant } = useTenant();
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
   const [customerData, setCustomerData] = useState({
@@ -43,10 +44,11 @@ const EventReservation = () => {
           reservationData: {
             customerData,
             selectedItem,
+            selectedQuantity,
             event
           },
           paymentRequired: false
-        } 
+        }
       });
     } catch (error) {
       toast({
@@ -163,7 +165,8 @@ const EventReservation = () => {
             pricePerPerson: true,
             status: "Disponível", 
             type: "VIP",
-            available: 2,
+            quantity: 1,
+            reserved: 0,
             description: "Localização privilegiada com vista completa do palco"
           },
           { 
@@ -175,7 +178,8 @@ const EventReservation = () => {
             pricePerPerson: true,
             status: "Disponível", 
             type: "Premium",
-            available: 5,
+            quantity: 1,
+            reserved: 0,
             description: "Vista exclusiva para o jardim com decoração especial"
           },
           { 
@@ -187,7 +191,8 @@ const EventReservation = () => {
             pricePerPerson: true,
             status: "Disponível", 
             type: "Standard",
-            available: 12,
+            quantity: 1,
+            reserved: 0,
             description: "Localização central com excelente vista geral"
           },
           { 
@@ -197,9 +202,10 @@ const EventReservation = () => {
             location: "Área Família", 
             price: 170, 
             pricePerPerson: true,
-            status: "Disponível", 
+            status: "Reservada", 
             type: "Família",
-            available: 3,
+            quantity: 1,
+            reserved: 1,
             description: "Próxima à área infantil, ideal para famílias"
           }
         ];
@@ -214,7 +220,8 @@ const EventReservation = () => {
             pricePerPerson: false,
             status: "Disponível", 
             type: "VIP",
-            available: 50,
+            quantity: 50,
+            reserved: 12,
             description: "Acesso VIP com camarote exclusivo e open bar premium"
           },
           { 
@@ -226,7 +233,8 @@ const EventReservation = () => {
             pricePerPerson: false,
             status: "Disponível", 
             type: "Premium",
-            available: 200,
+            quantity: 200,
+            reserved: 45,
             description: "Área premium com vista privilegiada e bar exclusivo"
           },
           { 
@@ -238,7 +246,8 @@ const EventReservation = () => {
             pricePerPerson: false,
             status: "Disponível", 
             type: "Standard",
-            available: 500,
+            quantity: 500,
+            reserved: 89,
             description: "Acesso à pista principal com toda a energia do evento"
           },
           { 
@@ -250,7 +259,8 @@ const EventReservation = () => {
             pricePerPerson: false,
             status: "Disponível", 
             type: "Estudante",
-            available: 100,
+            quantity: 100,
+            reserved: 23,
             description: "Desconto especial para estudantes (necessário comprovante)"
           }
         ];
@@ -265,7 +275,8 @@ const EventReservation = () => {
             pricePerPerson: true,
             status: "Disponível", 
             type: "Lounge Premium",
-            available: 3,
+            quantity: 3,
+            reserved: 1,
             description: "Área exclusiva com serviço personalizado e networking premium"
           },
           { 
@@ -277,7 +288,8 @@ const EventReservation = () => {
             pricePerPerson: true,
             status: "Disponível", 
             type: "Área Família",
-            available: 5,
+            quantity: 5,
+            reserved: 2,
             description: "Espaço familiar com atividades para crianças"
           },
           { 
@@ -289,7 +301,8 @@ const EventReservation = () => {
             pricePerPerson: true,
             status: "Reservada", 
             type: "Camarote",
-            available: 0,
+            quantity: 2,
+            reserved: 2,
             description: "Camarote com vista privilegiada e serviço executivo"
           }
         ];
@@ -304,14 +317,15 @@ const EventReservation = () => {
             pricePerPerson: false,
             status: "Disponível", 
             type: "Premium",
-            available: 5,
+            quantity: 5,
+            reserved: 1,
             description: "Opção premium com todos os benefícios inclusos"
           }
         ];
     }
   })();
 
-  const calculatePrice = (item: any, quantity: number = 1) => {
+  const calculatePrice = (item: any, quantity: number = selectedQuantity) => {
     if (item.pricePerPerson) {
       return item.price * item.capacity * quantity;
     } else {
@@ -328,12 +342,15 @@ const EventReservation = () => {
   };
 
   const getAvailabilityText = (item: any) => {
-    if (item.available === 0) {
+    const available = item.quantity - item.reserved;
+    if (available === 0) {
       return "Esgotado";
-    } else if (item.available === 1) {
-      return `${item.available} disponível`;
+    } else if (itemConfig.type === 'mesa') {
+      return item.status === 'Reservada' ? "Reservada" : "Disponível";
+    } else if (available === 1) {
+      return `${available} disponível`;
     } else {
-      return `${item.available} disponíveis`;
+      return `${available} disponíveis`;
     }
   };
 
@@ -451,13 +468,14 @@ const EventReservation = () => {
                     <Card 
                       key={item.id}
                       className={`cursor-pointer transition-all border-2 ${
-                        item.status === 'Reservada' || item.available === 0
+                        item.status === 'Reservada' || (item.quantity - item.reserved) === 0
                           ? 'opacity-50 border-muted cursor-not-allowed' 
                           : 'hover:border-primary hover:shadow-md'
                       }`}
                       onClick={() => {
-                        if (item.status === 'Disponível' && item.available > 0) {
+                        if (item.status === 'Disponível' && (item.quantity - item.reserved) > 0) {
                           setSelectedItem(item);
+                          setSelectedQuantity(1);
                           setIsReservationModalOpen(true);
                         }
                       }}
@@ -496,9 +514,9 @@ const EventReservation = () => {
                           </div>
                           <div className="text-right">
                             <Badge 
-                              variant={item.status === 'Disponível' && item.available > 0 ? 'default' : 'secondary'}
+                              variant={item.status === 'Disponível' && (item.quantity - item.reserved) > 0 ? 'default' : 'secondary'}
                             >
-                              {item.status === 'Disponível' && item.available > 0 
+                              {item.status === 'Disponível' && (item.quantity - item.reserved) > 0 
                                 ? getAvailabilityText(item)
                                 : item.status
                               }
@@ -541,13 +559,14 @@ const EventReservation = () => {
                     <Card 
                       key={item.id}
                       className={`cursor-pointer transition-all border-2 ${
-                        item.status === 'Reservada' || item.available === 0
+                        item.status === 'Reservada' || (item.quantity - item.reserved) === 0
                           ? 'opacity-50 border-muted cursor-not-allowed' 
                           : 'hover:border-primary hover:shadow-md'
                       }`}
                       onClick={() => {
-                        if (item.status === 'Disponível' && item.available > 0) {
+                        if (item.status === 'Disponível' && (item.quantity - item.reserved) > 0) {
                           setSelectedItem(item);
+                          setSelectedQuantity(1);
                           setIsReservationModalOpen(true);
                         }
                       }}
@@ -591,10 +610,10 @@ const EventReservation = () => {
                               )}
                             </div>
                             <Badge 
-                              variant={item.status === 'Disponível' && item.available > 0 ? 'default' : 'secondary'}
+                              variant={item.status === 'Disponível' && (item.quantity - item.reserved) > 0 ? 'default' : 'secondary'}
                               className="text-xs"
                             >
-                              {item.status === 'Disponível' && item.available > 0 
+                              {item.status === 'Disponível' && (item.quantity - item.reserved) > 0 
                                 ? getAvailabilityText(item)
                                 : item.status
                               }
@@ -713,6 +732,47 @@ const EventReservation = () => {
                     </div>
                     
                     <Separator />
+
+                    {/* Quantity Selection for non-mesa items */}
+                    {selectedItem && itemConfig.type !== 'mesa' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="quantity">
+                          Quantidade de {itemConfig.plural}
+                        </Label>
+                        <div className="flex items-center space-x-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedQuantity(Math.max(1, selectedQuantity - 1))}
+                            disabled={selectedQuantity <= 1}
+                          >
+                            -
+                          </Button>
+                          <Input
+                            id="quantity"
+                            type="number"
+                            min="1"
+                            max={selectedItem.quantity - selectedItem.reserved}
+                            value={selectedQuantity}
+                            onChange={(e) => setSelectedQuantity(Math.min(selectedItem.quantity - selectedItem.reserved, Math.max(1, parseInt(e.target.value) || 1)))}
+                            className="w-20 text-center"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedQuantity(Math.min(selectedItem.quantity - selectedItem.reserved, selectedQuantity + 1))}
+                            disabled={selectedQuantity >= (selectedItem.quantity - selectedItem.reserved)}
+                          >
+                            +
+                          </Button>
+                          <span className="text-sm text-muted-foreground">
+                            máx: {selectedItem.quantity - selectedItem.reserved}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="space-y-2 text-sm">
                       {itemConfig.requiresCapacity && (
@@ -721,8 +781,16 @@ const EventReservation = () => {
                           <span>{selectedItem.capacity} {itemConfig.capacityLabel}</span>
                         </div>
                       )}
+                      
+                      {itemConfig.type !== 'mesa' && (
+                        <div className="flex justify-between">
+                          <span>Quantidade:</span>
+                          <span>{selectedQuantity} {selectedQuantity === 1 ? itemConfig.singular.toLowerCase() : itemConfig.plural.toLowerCase()}</span>
+                        </div>
+                      )}
+                      
                       <div className="flex justify-between">
-                        <span>Valor {selectedItem.pricePerPerson ? itemConfig.priceLabel : 'total'}:</span>
+                        <span>Valor {selectedItem.pricePerPerson ? itemConfig.priceLabel : 'unitário'}:</span>
                         <span>R$ {selectedItem.price.toFixed(2)}</span>
                       </div>
                       {selectedItem.pricePerPerson && (
@@ -745,13 +813,17 @@ const EventReservation = () => {
                       {!selectedItem.pricePerPerson && (
                         <>
                           <div className="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span>R$ {calculatePrice(selectedItem).toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
                             <span>Taxa de serviço (10%):</span>
-                            <span>R$ {(selectedItem.price * 0.1).toFixed(2)}</span>
+                            <span>R$ {(calculatePrice(selectedItem) * 0.1).toFixed(2)}</span>
                           </div>
                           <Separator />
                           <div className="flex justify-between font-bold text-base">
                             <span>Total:</span>
-                            <span className="text-primary">R$ {(selectedItem.price * 1.1).toFixed(2)}</span>
+                            <span className="text-primary">R$ {(calculatePrice(selectedItem) * 1.1).toFixed(2)}</span>
                           </div>
                         </>
                       )}
@@ -789,6 +861,7 @@ const EventReservation = () => {
                   sessionStorage.setItem('reservationData', JSON.stringify({
                     customerData,
                     selectedItem,
+                    selectedQuantity,
                     event
                   }));
                   

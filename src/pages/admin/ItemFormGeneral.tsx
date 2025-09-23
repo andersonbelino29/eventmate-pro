@@ -38,9 +38,10 @@ const ItemFormGeneral = () => {
     location: '',
     type: '',
     price: '',
+    quantity: itemConfig.type === 'mesa' ? '1' : '50',
     isActive: true,
     hasTimeSlots: false,
-    allowMultipleSelection: false,
+    allowMultipleSelection: itemConfig.type !== 'mesa',
     maxSelectionPerReservation: '1',
     minimumAdvanceBooking: '0',
     maximumAdvanceBooking: '720',
@@ -102,6 +103,15 @@ const ItemFormGeneral = () => {
       return false;
     }
 
+    if (!formData.quantity || parseInt(formData.quantity) <= 0) {
+      toast({
+        title: "Erro na validação",
+        description: "Quantidade deve ser maior que zero.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     if (itemConfig.requiresLocation && !formData.location) {
       toast({
         title: "Erro na validação",
@@ -137,6 +147,7 @@ const ItemFormGeneral = () => {
         ...formData,
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
         price: parseFloat(formData.price),
+        quantity: parseInt(formData.quantity),
         maxSelectionPerReservation: parseInt(formData.maxSelectionPerReservation),
         minimumAdvanceBooking: parseInt(formData.minimumAdvanceBooking),
         maximumAdvanceBooking: parseInt(formData.maximumAdvanceBooking),
@@ -279,6 +290,33 @@ const ItemFormGeneral = () => {
                   placeholder="Descreva as características e benefícios do item..."
                   rows={3}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quantity">
+                  {itemConfig.type === 'mesa' 
+                    ? 'Quantidade de Mesas' 
+                    : itemConfig.type === 'ingresso' 
+                      ? 'Quantidade de Ingressos' 
+                      : `Quantidade de ${itemConfig.plural}`} *
+                </Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  value={formData.quantity}
+                  onChange={(e) => handleInputChange('quantity', e.target.value)}
+                  placeholder={itemConfig.type === 'mesa' ? '1' : '50'}
+                  required
+                />
+                <p className="text-sm text-muted-foreground">
+                  {itemConfig.type === 'mesa' 
+                    ? 'Geralmente 1 mesa por tipo (cada mesa é única)'
+                    : itemConfig.type === 'ingresso' 
+                      ? 'Quantidade total de ingressos disponíveis deste tipo'
+                      : 'Quantidade total disponível deste item'
+                  }
+                </p>
               </div>
 
             </CardContent>

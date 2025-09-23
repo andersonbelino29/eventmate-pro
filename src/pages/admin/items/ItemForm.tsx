@@ -38,9 +38,10 @@ const ItemForm = () => {
     location: '',
     type: '',
     price: '',
+    quantity: itemConfig.type === 'mesa' ? '1' : '50', // Mesas: 1, Ingressos/outros: múltiplos
     isActive: true,
     hasTimeSlots: false,
-    allowMultipleSelection: false,
+    allowMultipleSelection: itemConfig.type !== 'mesa', // Mesas não permitem seleção múltipla
     maxSelectionPerReservation: '1',
     minimumAdvanceBooking: '0', // em horas
     maximumAdvanceBooking: '720', // em horas (30 dias)
@@ -101,6 +102,15 @@ const ItemForm = () => {
       return false;
     }
 
+    if (!formData.quantity || parseInt(formData.quantity) <= 0) {
+      toast({
+        title: "Erro na validação",
+        description: "Quantidade deve ser maior que zero.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     if (itemConfig.requiresLocation && !formData.location) {
       toast({
         title: "Erro na validação",
@@ -137,6 +147,7 @@ const ItemForm = () => {
         ...formData,
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
         price: parseFloat(formData.price),
+        quantity: parseInt(formData.quantity),
         maxSelectionPerReservation: parseInt(formData.maxSelectionPerReservation),
         minimumAdvanceBooking: parseInt(formData.minimumAdvanceBooking),
         maximumAdvanceBooking: parseInt(formData.maximumAdvanceBooking),
@@ -312,18 +323,45 @@ const ItemForm = () => {
                 <p className="text-sm text-muted-foreground">
                   Este será o valor cobrado {itemConfig.priceLabel.toLowerCase()}
                 </p>
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="quantity">
+                    {itemConfig.type === 'mesa' 
+                      ? 'Quantidade de Mesas' 
+                      : itemConfig.type === 'ingresso' 
+                        ? 'Quantidade de Ingressos' 
+                        : `Quantidade de ${itemConfig.plural}`} *
+                  </Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    min="1"
+                    value={formData.quantity}
+                    onChange={(e) => handleInputChange('quantity', e.target.value)}
+                    placeholder={itemConfig.type === 'mesa' ? '1' : '50'}
+                    required
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {itemConfig.type === 'mesa' 
+                      ? 'Geralmente 1 mesa por tipo (cada mesa é única)'
+                      : itemConfig.type === 'ingresso' 
+                        ? 'Quantidade total de ingressos disponíveis deste tipo'
+                        : 'Quantidade total disponível deste item'
+                    }
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Configurações de Reserva */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações de Reserva</CardTitle>
-              <CardDescription>
-                Configure as regras de reserva para este item
-              </CardDescription>
-            </CardHeader>
+            {/* Configurações de Reserva */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Configurações de Reserva</CardTitle>
+                <CardDescription>
+                  Configure as regras de reserva para este item
+                </CardDescription>
+              </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
@@ -340,14 +378,18 @@ const ItemForm = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Permitir Múltipla Seleção</Label>
+                  <Label>Permitir Múltipla Seleção por Reserva</Label>
                   <p className="text-sm text-muted-foreground">
-                    Permite selecionar mais de um deste item na mesma reserva
+                    {itemConfig.type === 'mesa' 
+                      ? 'Mesas não permitem seleção múltipla (cada reserva = 1 mesa)'
+                      : 'Permite selecionar vários itens deste tipo na mesma reserva'
+                    }
                   </p>
                 </div>
                 <Switch
                   checked={formData.allowMultipleSelection}
                   onCheckedChange={(checked) => handleInputChange('allowMultipleSelection', checked)}
+                  disabled={itemConfig.type === 'mesa'}
                 />
               </div>
 
