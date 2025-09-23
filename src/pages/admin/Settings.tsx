@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from "@/contexts/AuthContext";
+import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,14 +20,33 @@ import { Link } from "react-router-dom";
 
 const Settings = () => {
   const { user, organization, updateOrganization } = useAuth();
+  const { currentTenant, setCurrentTenant } = useTenant();
   
   // Form states
-  const [orgName, setOrgName] = useState(organization?.name || '');
-  const [subdomain, setSubdomain] = useState(organization?.subdomain || '');
-  const [primaryColor, setPrimaryColor] = useState(organization?.primaryColor || '263 70% 50%');
-  const [secondaryColor, setSecondaryColor] = useState(organization?.secondaryColor || '280 70% 60%');
-  const [logo, setLogo] = useState(organization?.logo || '');
-  const [customDomain, setCustomDomain] = useState(organization?.customDomain || '');
+  const [orgName, setOrgName] = useState(currentTenant?.name || '');
+  const [subdomain, setSubdomain] = useState(currentTenant?.subdomain || '');
+  const [primaryColor, setPrimaryColor] = useState(currentTenant?.primaryColor || '263 70% 50%');
+  const [secondaryColor, setSecondaryColor] = useState(currentTenant?.secondaryColor || '280 70% 60%');
+  const [logo, setLogo] = useState(currentTenant?.logo || '');
+  const [customDomain, setCustomDomain] = useState(currentTenant?.customDomain || '');
+  
+  // Page configurations
+  const [aboutPageVisible, setAboutPageVisible] = useState(currentTenant?.aboutPage?.visible ?? true);
+  const [aboutTitle, setAboutTitle] = useState(currentTenant?.aboutPage?.title || 'Sobre Nós');
+  const [aboutSubtitle, setAboutSubtitle] = useState(currentTenant?.aboutPage?.subtitle || 'Nossa História e Missão');
+  const [aboutDescription, setAboutDescription] = useState(currentTenant?.aboutPage?.description || 'Somos uma empresa especializada em criar experiências únicas e memoráveis através de eventos excepcionais.');
+  const [aboutMission, setAboutMission] = useState(currentTenant?.aboutPage?.mission || 'Criar momentos inesquecíveis que conectam pessoas e celebram a vida.');
+  const [aboutVision, setAboutVision] = useState(currentTenant?.aboutPage?.vision || 'Ser reconhecida como a principal referência em eventos exclusivos e personalizados.');
+  const [aboutValues, setAboutValues] = useState(currentTenant?.aboutPage?.values?.join('\n') || 'Excelência em cada detalhe\nCompromisso com a qualidade\nInovação constante\nAtendimento personalizado');
+  
+  const [contactPageVisible, setContactPageVisible] = useState(currentTenant?.contactPage?.visible ?? true);
+  const [contactTitle, setContactTitle] = useState(currentTenant?.contactPage?.title || 'Entre em Contato');
+  const [contactSubtitle, setContactSubtitle] = useState(currentTenant?.contactPage?.subtitle || 'Estamos aqui para ajudar você');
+  const [contactDescription, setContactDescription] = useState(currentTenant?.contactPage?.description || 'Tem uma ideia para um evento especial? Entre em contato conosco e vamos transformar sua visão em realidade.');
+  const [contactPhone, setContactPhone] = useState(currentTenant?.contactPage?.phone || '');
+  const [contactEmail, setContactEmail] = useState(currentTenant?.contactPage?.email || '');
+  const [contactAddress, setContactAddress] = useState(currentTenant?.contactPage?.address || '');
+  const [contactHours, setContactHours] = useState(currentTenant?.contactPage?.businessHours?.map(h => `${h.day}: ${h.time}`).join('\n') || 'Segunda a Sexta: 9h às 18h');
   
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -49,14 +69,44 @@ const Settings = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      updateOrganization({
+      const updatedTenant = {
+        ...currentTenant!,
         name: orgName,
         subdomain,
         primaryColor,
         secondaryColor,
         logo,
-        customDomain
-      });
+        customDomain,
+        aboutPage: {
+          visible: aboutPageVisible,
+          title: aboutTitle,
+          subtitle: aboutSubtitle,
+          description: aboutDescription,
+          mission: aboutMission,
+          vision: aboutVision,
+          values: aboutValues.split('\n').filter(v => v.trim()),
+          stats: currentTenant?.aboutPage?.stats || [],
+          team: currentTenant?.aboutPage?.team || []
+        },
+        contactPage: {
+          visible: contactPageVisible,
+          title: contactTitle,
+          subtitle: contactSubtitle,
+          description: contactDescription,
+          address: contactAddress,
+          phone: contactPhone,
+          email: contactEmail,
+          whatsapp: currentTenant?.contactPage?.whatsapp || '',
+          website: currentTenant?.contactPage?.website || '',
+          businessHours: contactHours.split('\n').map(line => {
+            const [day, time] = line.split(': ');
+            return { day: day?.trim() || '', time: time?.trim() || '' };
+          }).filter(h => h.day && h.time),
+          socialMedia: currentTenant?.contactPage?.socialMedia || {}
+        }
+      };
+      
+      setCurrentTenant(updatedTenant);
       
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
@@ -110,7 +160,7 @@ const Settings = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Link to={`/${organization?.subdomain}`}>
+              <Link to={`/${currentTenant?.subdomain}`}>
                 <Button variant="outline" size="sm">
                   <Eye className="h-4 w-4 mr-2" />
                   Visualizar Site
@@ -136,8 +186,9 @@ const Settings = () => {
         )}
 
         <Tabs defaultValue="brand" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="brand">Marca & Visual</TabsTrigger>
+            <TabsTrigger value="pages">Páginas</TabsTrigger>
             <TabsTrigger value="domain">Domínio</TabsTrigger>
             <TabsTrigger value="plan">Plano</TabsTrigger>
             <TabsTrigger value="team">Equipe</TabsTrigger>
@@ -329,18 +380,29 @@ const Settings = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
-                  <Switch checked={true} />
+                  <Switch 
+                    checked={aboutPageVisible} 
+                    onCheckedChange={setAboutPageVisible}
+                  />
                   <Label>Exibir página "Sobre"</Label>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Título</Label>
-                    <Input placeholder="Sobre Nós" defaultValue="Sobre Nós" />
+                    <Input 
+                      placeholder="Sobre Nós" 
+                      value={aboutTitle}
+                      onChange={(e) => setAboutTitle(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label>Subtítulo</Label>
-                    <Input placeholder="Nossa História e Missão" defaultValue="Nossa História e Missão" />
+                    <Input 
+                      placeholder="Nossa História e Missão" 
+                      value={aboutSubtitle}
+                      onChange={(e) => setAboutSubtitle(e.target.value)}
+                    />
                   </div>
                 </div>
                 
@@ -349,7 +411,8 @@ const Settings = () => {
                   <Textarea 
                     rows={3} 
                     placeholder="Conte a história da sua empresa..."
-                    defaultValue="Somos uma empresa especializada em criar experiências únicas e memoráveis através de eventos excepcionais."
+                    value={aboutDescription}
+                    onChange={(e) => setAboutDescription(e.target.value)}
                   />
                 </div>
 
@@ -359,7 +422,8 @@ const Settings = () => {
                     <Textarea 
                       rows={2} 
                       placeholder="Qual é a missão da empresa?"
-                      defaultValue="Criar momentos inesquecíveis que conectam pessoas e celebram a vida."
+                      value={aboutMission}
+                      onChange={(e) => setAboutMission(e.target.value)}
                     />
                   </div>
                   <div>
@@ -367,7 +431,8 @@ const Settings = () => {
                     <Textarea 
                       rows={2} 
                       placeholder="Qual é a visão da empresa?"
-                      defaultValue="Ser reconhecida como a principal referência em eventos exclusivos e personalizados."
+                      value={aboutVision}
+                      onChange={(e) => setAboutVision(e.target.value)}
                     />
                   </div>
                 </div>
@@ -377,7 +442,8 @@ const Settings = () => {
                   <Textarea 
                     rows={3}
                     placeholder="Excelência em cada detalhe&#10;Compromisso com a qualidade&#10;Inovação constante"
-                    defaultValue="Excelência em cada detalhe&#10;Compromisso com a qualidade&#10;Inovação constante&#10;Atendimento personalizado"
+                    value={aboutValues}
+                    onChange={(e) => setAboutValues(e.target.value)}
                   />
                 </div>
               </CardContent>
@@ -396,18 +462,29 @@ const Settings = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
-                  <Switch checked={true} />
+                  <Switch 
+                    checked={contactPageVisible} 
+                    onCheckedChange={setContactPageVisible}
+                  />
                   <Label>Exibir página "Contato"</Label>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Título da Página</Label>
-                    <Input placeholder="Entre em Contato" defaultValue="Entre em Contato" />
+                    <Input 
+                      placeholder="Entre em Contato" 
+                      value={contactTitle}
+                      onChange={(e) => setContactTitle(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label>Subtítulo</Label>
-                    <Input placeholder="Estamos aqui para ajudar" defaultValue="Estamos aqui para ajudar você" />
+                    <Input 
+                      placeholder="Estamos aqui para ajudar" 
+                      value={contactSubtitle}
+                      onChange={(e) => setContactSubtitle(e.target.value)}
+                    />
                   </div>
                 </div>
 
@@ -416,14 +493,19 @@ const Settings = () => {
                   <Textarea 
                     rows={2}
                     placeholder="Mensagem de boas-vindas da página de contato"
-                    defaultValue="Tem uma ideia para um evento especial? Entre em contato conosco e vamos transformar sua visão em realidade."
+                    value={contactDescription}
+                    onChange={(e) => setContactDescription(e.target.value)}
                   />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Telefone Principal</Label>
-                    <Input placeholder="(11) 9999-9999" defaultValue="(11) 9999-9999" />
+                    <Input 
+                      placeholder="(11) 9999-9999" 
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label>WhatsApp</Label>
@@ -434,7 +516,12 @@ const Settings = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Email Principal</Label>
-                    <Input type="email" placeholder="contato@empresa.com" defaultValue="contato@empresa.com" />
+                    <Input 
+                      type="email" 
+                      placeholder="contato@empresa.com" 
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label>Website</Label>
@@ -446,7 +533,8 @@ const Settings = () => {
                   <Label>Endereço Completo</Label>
                   <Input 
                     placeholder="Rua das Flores, 123 - Centro, São Paulo - SP"
-                    defaultValue="Rua das Flores, 123 - Centro, São Paulo - SP"
+                    value={contactAddress}
+                    onChange={(e) => setContactAddress(e.target.value)}
                   />
                 </div>
 
