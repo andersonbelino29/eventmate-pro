@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTenant } from '@/contexts/TenantContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,10 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Calendar, ArrowLeft, Save, Eye, Upload, MapPin, 
   Users, DollarSign, Clock, Tag, Image as ImageIcon,
-  CheckCircle, AlertCircle
+  CheckCircle, AlertCircle, Plus, Trash2, Package
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -21,7 +23,19 @@ const EventForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { currentTenant } = useTenant();
   const isEditing = !!id;
+  
+  // Get item configuration from tenant
+  const itemConfig = currentTenant?.itemConfig || {
+    type: 'mesa',
+    singular: 'Mesa',
+    plural: 'Mesas',
+    requiresLocation: true,
+    requiresCapacity: true,
+    capacityLabel: 'pessoas',
+    priceLabel: 'por pessoa'
+  };
 
   // Form states
   const [formData, setFormData] = useState({
@@ -34,11 +48,12 @@ const EventForm = () => {
     address: isEditing ? 'Rua das Flores, 123 - Centro' : '',
     category: isEditing ? 'Casamento' : '',
     capacity: isEditing ? '200' : '',
-    pricingType: isEditing ? 'per_person' : 'per_person', // 'per_person', 'per_item', ou 'per_table'
+    pricingType: isEditing ? 'per_item' : 'per_item', // 'per_person', 'per_item', ou 'per_table'
     pricePerPerson: isEditing ? '150' : '',
     pricePerItem: isEditing ? '200' : '',
     status: isEditing ? 'Confirmado' : 'Rascunho',
     image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : '',
+    selectedItems: isEditing ? ['1', '2'] : [], // IDs dos itens selecionados
     tables: isEditing ? [
       { id: '1', name: 'Mesa VIP', seats: 8, price: 200, available: 5 },
       { id: '2', name: 'Mesa Premium', seats: 8, price: 180, available: 10 },
@@ -50,6 +65,38 @@ const EventForm = () => {
       { id: '3', name: 'Ingresso Standard', capacity: 1, price: 120, location: 'Pista', type: 'Standard' }
     ] : []
   });
+
+  // Mock available items based on tenant configuration
+  const availableItems = (() => {
+    switch (itemConfig.type) {
+      case 'mesa':
+        return [
+          { id: '1', name: 'Mesa VIP - Frente do Palco', capacity: 8, location: 'Área VIP', type: 'Mesa Premium', price: 250 },
+          { id: '2', name: 'Mesa Premium - Vista Jardim', capacity: 6, location: 'Área Premium', type: 'Mesa Premium', price: 200 },
+          { id: '3', name: 'Mesa Standard - Área Central', capacity: 10, location: 'Área Central', type: 'Mesa Standard', price: 150 },
+          { id: '4', name: 'Mesa Família - Área Infantil', capacity: 4, location: 'Área Família', type: 'Mesa Família', price: 180 },
+          { id: '5', name: 'Mesa Executiva - Sala Privada', capacity: 12, location: 'Sala Privada', type: 'Mesa Premium', price: 300 }
+        ];
+      case 'ingresso':
+        return [
+          { id: '1', name: 'Ingresso VIP', capacity: 1, location: 'Área VIP', type: 'VIP', price: 250 },
+          { id: '2', name: 'Ingresso Premium', capacity: 1, location: 'Área Premium', type: 'Premium', price: 180 },
+          { id: '3', name: 'Ingresso Standard', capacity: 1, location: 'Pista', type: 'Standard', price: 120 },
+          { id: '4', name: 'Ingresso Estudante', capacity: 1, location: 'Pista', type: 'Estudante', price: 80 }
+        ];
+      case 'area':
+        return [
+          { id: '1', name: 'Lounge VIP Premium', capacity: 20, location: 'Andar Superior', type: 'Lounge Premium', price: 200 },
+          { id: '2', name: 'Área Família', capacity: 15, location: 'Jardim', type: 'Área Família', price: 120 },
+          { id: '3', name: 'Camarote Executivo', capacity: 8, location: 'Área Central', type: 'Camarote', price: 350 }
+        ];
+      default:
+        return [
+          { id: '1', name: `${itemConfig.singular} Premium`, capacity: 8, location: 'Local Principal', type: 'Premium', price: 200 },
+          { id: '2', name: `${itemConfig.singular} Standard`, capacity: 6, location: 'Local Secundário', type: 'Standard', price: 150 }
+        ];
+    }
+  })();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -98,8 +145,8 @@ const EventForm = () => {
         newErrors.pricePerItem = 'Preço por item deve ser maior ou igual a zero';
       }
     } else if (formData.pricingType === 'per_table') {
-      if (formData.tables.length === 0) {
-        newErrors.tables = 'Adicione pelo menos uma mesa';
+      if (formData.selectedItems.length === 0) {
+        newErrors.selectedItems = 'Selecione pelo menos um item para o evento';
       }
     }
 
