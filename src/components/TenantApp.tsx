@@ -4,11 +4,11 @@ import { useTenant } from "@/hooks/useTenant";
 import OrganizationPublic from "@/pages/admin/OrganizationPublic";
 import EventDetails from "@/pages/EventDetails";
 import EventReservation from "@/pages/EventReservation";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
+import LoginSignup from "@/pages/LoginSignup";
 import MyReservations from "@/pages/MyReservations";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
+import { TenantProtectedRoute } from "@/components/ProtectedRoute";
 
 const TenantApp = () => {
   const { tenantSlug } = useParams();
@@ -43,10 +43,24 @@ const TenantApp = () => {
     <div>
           <Routes>
             <Route path="/" element={<OrganizationPublic />} />
+            <Route path="/login" element={<LoginSignup />} />
             <Route path="/evento/:eventId" element={<EventDetails />} />
-        <Route path="/sobre" element={<About />} />
-        <Route path="/contato" element={<Contact />} />
-        <Route path="/minhas-reservas" element={<MyReservations />} />
+            <Route 
+              path="/evento/:eventId/reservar" 
+              element={
+                <TenantProtectedRoute>
+                  <EventReservation />
+                </TenantProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/minhas-reservas" 
+              element={
+                <TenantProtectedRoute>
+                  <MyReservations />
+                </TenantProtectedRoute>
+              } 
+            />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

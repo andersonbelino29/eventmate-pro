@@ -8,6 +8,13 @@ export interface Tenant {
   primaryColor?: string;
   secondaryColor?: string;
   customDomain?: string;
+  heroConfig?: {
+    title: string;
+    subtitle: string;
+    description: string;
+    buttonText: string;
+    featuredEvents: string[]; // Array of event IDs
+  };
   aboutPage?: {
     visible: boolean;
     title: string;
@@ -72,6 +79,13 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       logo: 'https://images.unsplash.com/photo-1519167758481-83f29c8ae8a4?w=200&h=200&fit=crop&crop=center',
       primaryColor: '263 70% 50%',
       secondaryColor: '280 70% 60%',
+      heroConfig: {
+        title: "Villa Eventos",
+        subtitle: "Eventos inesquecíveis para momentos especiais",
+        description: "Criamos experiências únicas e memoráveis para seus eventos mais importantes. Com mais de 10 anos de experiência no mercado.",
+        buttonText: "Ver Eventos Disponíveis",
+        featuredEvents: ["1", "2", "3"]
+      },
       aboutPage: {
         visible: true,
         title: "Sobre a Villa Eventos",
@@ -138,6 +152,13 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       logo: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop&crop=center',
       primaryColor: '120 70% 50%',
       secondaryColor: '140 70% 60%',
+      heroConfig: {
+        title: "Buffet Alegria",
+        subtitle: "Tradição e sabor em cada evento",
+        description: "Com mais de 20 anos no mercado, oferecemos qualidade gastronômica e atendimento excepcional.",
+        buttonText: "Conheça Nossos Serviços",
+        featuredEvents: ["1"]
+      },
       aboutPage: {
         visible: true,
         title: "Sobre o Buffet Alegria",
