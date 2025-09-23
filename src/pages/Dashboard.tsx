@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Calendar, Users, TrendingUp, DollarSign, BarChart3, 
-  Plus, Settings, Eye, Edit, Trash2, Building2, Table, Mail
+  Plus, Settings, Eye, Edit, Trash2, Building2, Table, Mail, Package
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -307,7 +307,14 @@ const Dashboard = () => {
                   </Button>
                 </Link>
                 
-                <Link to="/admin/tables/1" className="block">
+                <Link to="/admin/events/1/items/new" className="block">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Package className="h-4 w-4 mr-2" />
+                    Cadastrar Itens
+                  </Button>
+                </Link>
+                
+                <Link to="/admin/events/1/items" className="block">
                   <Button variant="outline" className="w-full justify-start">
                     <Table className="h-4 w-4 mr-2" />
                     Gerenciar Mesas
