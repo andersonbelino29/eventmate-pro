@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,18 +12,32 @@ import {
 const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { eventId, itemId, reservationData, event, selectedItem } = location.state || {};
+  const [searchParams] = useSearchParams();
+  const [reservationData, setReservationData] = useState<any>(null);
+  const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    // If no state data, redirect to home
-    if (!eventId || !reservationData) {
+    // Get reservation data from sessionStorage or from URL state
+    const data = sessionStorage.getItem('reservationData') || location.state;
+    if (data && typeof data === 'string') {
+      setReservationData(JSON.parse(data));
+    } else if (data) {
+      setReservationData(data);
+    } else {
+      // If no data available, redirect to home
       navigate('/');
     }
-  }, [eventId, reservationData, navigate]);
+  }, [location.state, navigate]);
 
-  if (!eventId || !reservationData) {
-    return null;
+  if (!reservationData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div>Carregando...</div>
+      </div>
+    );
   }
+
+  const { customerData, selectedTable, event } = reservationData;
 
   const reservationId = `RES-${Date.now()}`;
   const confirmationCode = `CONF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -92,7 +106,7 @@ const PaymentSuccess = () => {
                   <div className="space-y-4">
                     <div>
                       <h3 className="text-xl font-semibold">{event.name}</h3>
-                      <p className="text-muted-foreground">{selectedItem.name}</p>
+                      <p className="text-muted-foreground">{selectedTable.name}</p>
                     </div>
                     
                     <div className="space-y-2">
@@ -106,11 +120,11 @@ const PaymentSuccess = () => {
                       </div>
                       <div className="flex items-center">
                         <Users className="h-4 w-4 text-primary mr-2" />
-                        <span>{selectedItem.capacity} pessoas</span>
+                        <span>{selectedTable.capacity || selectedTable.seats} pessoas</span>
                       </div>
                       <div className="flex items-center">
                         <DollarSign className="h-4 w-4 text-primary mr-2" />
-                        <span>R$ {(reservationData.totalAmount * 1.1).toFixed(2)}</span>
+                    <span>R$ {(customerData.totalAmount || (selectedTable.price * selectedTable.seats * 1.1)).toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -165,17 +179,17 @@ const PaymentSuccess = () => {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span>Subtotal ({selectedItem.capacity} pessoas):</span>
-                    <span>R$ {reservationData.totalAmount.toFixed(2)}</span>
+                    <span>Subtotal ({selectedTable.seats || selectedTable.capacity} pessoas):</span>
+                    <span>R$ {(selectedTable.price * selectedTable.seats).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Taxa de serviço (10%):</span>
-                    <span>R$ {(reservationData.totalAmount * 0.1).toFixed(2)}</span>
+                    <span>R$ {(selectedTable.price * selectedTable.seats * 0.1).toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total Pago:</span>
-                    <span>R$ {(reservationData.totalAmount * 1.1).toFixed(2)}</span>
+                    <span>R$ {(selectedTable.price * selectedTable.seats * 1.1).toFixed(2)}</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
                     Pago via Cartão de Crédito em {new Date().toLocaleDateString('pt-BR')}
@@ -262,8 +276,8 @@ const PaymentSuccess = () => {
 
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h4 className="font-semibold text-green-800 mb-2">Confirmação</h4>
-                  <p className="text-sm text-green-700">
-                    Um email de confirmação foi enviado para {reservationData.customerEmail}
+                  <p className="text-sm text-blue-700">
+                    Um email de confirmação foi enviado para {customerData.email}
                   </p>
                 </div>
               </CardContent>

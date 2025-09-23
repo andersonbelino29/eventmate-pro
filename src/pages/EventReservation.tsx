@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Calendar, MapPin, Users, DollarSign, CheckCircle, CreditCard, User, Mail, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,6 +15,14 @@ const EventReservation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedTable, setSelectedTable] = useState<any>(null);
+  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+
+  const [customerData, setCustomerData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    observations: ''
+  });
 
   // Mock event data
   const event = {
@@ -72,10 +80,14 @@ const EventReservation = () => {
                     <Card 
                       key={item.id}
                       className={`cursor-pointer transition-all ${
-                        item.status === 'Reservada' ? 'opacity-50' : 
-                        selectedTable?.id === item.id ? 'ring-2 ring-primary' : 'hover:shadow-lg'
+                        item.status === 'Reservada' ? 'opacity-50' : 'hover:shadow-lg'
                       }`}
-                      onClick={() => item.status === 'Disponível' && setSelectedTable(item)}
+                      onClick={() => {
+                        if (item.status === 'Disponível') {
+                          setSelectedTable(item);
+                          setIsReservationModalOpen(true);
+                        }
+                      }}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -98,26 +110,158 @@ const EventReservation = () => {
                     </Card>
                   ))}
                 </div>
-                
-                {selectedTable && (
-                  <div className="mt-6 p-4 bg-primary/5 rounded-lg">
-                    <h3 className="font-semibold mb-2">Item Selecionado:</h3>
-                    <p>{selectedTable.name} - {selectedTable.seats} pessoas</p>
-                    <p className="font-bold">Total: R$ {(selectedTable.price * selectedTable.seats).toFixed(2)}</p>
-                    
-                    <Button 
-                      className="w-full mt-4"
-                      onClick={() => navigate(`/reserva-detalhes/${eventId}/${selectedTable.id}`)}
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Continuar para Reserva
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Reservation Modal */}
+        <Dialog open={isReservationModalOpen} onOpenChange={setIsReservationModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Finalizar Reserva</DialogTitle>
+              <DialogDescription>
+                Preencha seus dados para confirmar a reserva
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Customer Form */}
+              <div className="space-y-4">
+                <h3 className="font-semibold">Dados do Cliente</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo *</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      value={customerData.name}
+                      onChange={(e) => setCustomerData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Seu nome completo"
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={customerData.email}
+                      onChange={(e) => setCustomerData(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="seu@email.com"
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone *</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      value={customerData.phone}
+                      onChange={(e) => setCustomerData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="(11) 99999-9999"
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="observations">Observações</Label>
+                  <Textarea
+                    id="observations"
+                    value={customerData.observations}
+                    onChange={(e) => setCustomerData(prev => ({ ...prev, observations: e.target.value }))}
+                    placeholder="Comentários adicionais..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              {/* Reservation Summary */}
+              <div className="space-y-4">
+                <h3 className="font-semibold">Resumo da Reserva</h3>
+                
+                {selectedTable && (
+                  <div className="p-4 bg-muted rounded-lg space-y-3">
+                    <div>
+                      <h4 className="font-medium">{selectedTable.name}</h4>
+                      <p className="text-sm text-muted-foreground">{selectedTable.location}</p>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Capacidade:</span>
+                        <span>{selectedTable.seats} pessoas</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Valor por pessoa:</span>
+                        <span>R$ {selectedTable.price}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span>R$ {(selectedTable.price * selectedTable.seats).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Taxa de serviço (10%):</span>
+                        <span>R$ {(selectedTable.price * selectedTable.seats * 0.1).toFixed(2)}</span>
+                      </div>
+                      <div className="border-t pt-2">
+                        <div className="flex justify-between font-bold">
+                          <span>Total:</span>
+                          <span>R$ {(selectedTable.price * selectedTable.seats * 1.1).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground">
+                      Evento: {event.name}<br />
+                      Data: {new Date(event.date).toLocaleDateString('pt-BR')} às {event.time}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsReservationModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (!customerData.name || !customerData.email || !customerData.phone) {
+                    toast({
+                      title: "Dados incompletos",
+                      description: "Por favor, preencha todos os campos obrigatórios.",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  
+                  // Store data in sessionStorage for payment flow
+                  sessionStorage.setItem('reservationData', JSON.stringify({
+                    customerData,
+                    selectedTable,
+                    event
+                  }));
+                  
+                  // Redirect to payment
+                  navigate(`/payment-checkout/${eventId}/${selectedTable.id}`);
+                }}
+              >
+                <CreditCard className="h-4 w-4 mr-2" />
+                Finalizar Pagamento
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

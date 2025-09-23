@@ -20,6 +20,7 @@ import Reports from "./pages/admin/Reports";
 import ReservationList from "./pages/admin/reservations/ReservationList";
 import ReservationForm from "./pages/admin/reservations/ReservationForm";
 import EventReservation from "./pages/EventReservation";
+import PaymentCheckout from "./pages/PaymentCheckout";
 import ReservationDetails from "./pages/ReservationDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import TenantSelector from "./components/TenantSelector";
@@ -145,6 +146,7 @@ const App = () => (
                 } 
               />
               <Route path="/evento/:eventId/reservar" element={<EventReservation />} />
+              <Route path="/payment-checkout/:eventId/:itemId" element={<PaymentCheckout />} />
               <Route path="/reserva-detalhes/:eventId/:itemId" element={<ReservationDetails />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/select-tenant" element={<TenantSelector />} />
