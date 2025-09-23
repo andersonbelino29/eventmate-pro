@@ -431,9 +431,19 @@ const EventReservation = () => {
             <div className="lg:hidden">
               <Card>
                 <CardHeader>
-                  <CardTitle>Selecione sua {itemConfig.singular}</CardTitle>
+                  <CardTitle>Selecione {itemConfig.type === 'ingresso' ? 'seu' : 'sua'} {itemConfig.singular}</CardTitle>
+                  {event.pricingType === 'per_person' && (
+                    <div className="text-xl font-bold text-primary mb-2">
+                      R$ {items[0]?.price || 150}/pessoa
+                    </div>
+                  )}
                   <CardDescription>
-                    Escolha a opção que melhor se adequa às suas necessidades
+                    {itemConfig.type === 'ingresso' 
+                      ? `Opções de ${itemConfig.plural}`
+                      : itemConfig.type === 'mesa'
+                      ? `Opções de ${itemConfig.plural}`
+                      : 'Escolha a opção que melhor se adequa às suas necessidades'
+                    }
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -509,11 +519,21 @@ const EventReservation = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    Selecione sua {itemConfig.singular}
+                    Selecione {itemConfig.type === 'ingresso' ? 'seu' : 'sua'} {itemConfig.singular}
                     <DollarSign className="h-5 w-5 text-primary" />
                   </CardTitle>
+                  {event.pricingType === 'per_person' && (
+                    <div className="text-lg font-bold text-primary">
+                      R$ {items[0]?.price || 150}/pessoa
+                    </div>
+                  )}
                   <CardDescription>
-                    Escolha a opção que melhor se adequa às suas necessidades
+                    {itemConfig.type === 'ingresso' 
+                      ? 'Escolha o tipo de ingresso que melhor se adequa às suas necessidades'
+                      : itemConfig.type === 'mesa'
+                      ? 'Escolha a mesa que melhor se adequa às suas necessidades'
+                      : 'Escolha a opção que melhor se adequa às suas necessidades'
+                    }
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -594,6 +614,12 @@ const EventReservation = () => {
                       <CheckCircle className="h-3 w-3 mr-2 text-green-600" />
                       Cancelamento gratuito até 24h antes
                     </div>
+                    {itemConfig.type === 'ingresso' && (
+                      <div className="flex items-center">
+                        <CheckCircle className="h-3 w-3 mr-2 text-green-600" />
+                        Ingresso digital disponível imediatamente
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -784,7 +810,9 @@ const EventReservation = () => {
                 <CreditCard className="h-4 w-4 mr-2" />
                 {currentTenant?.paymentConfig?.enabled && currentTenant?.paymentConfig?.requirePayment 
                   ? 'Continuar para Pagamento'
-                  : 'Continuar para Reserva'
+                  : itemConfig.type === 'ingresso' 
+                    ? 'Continuar para Compra'
+                    : 'Continuar para Reserva'
                 }
               </Button>
             </DialogFooter>
