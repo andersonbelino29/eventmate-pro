@@ -13,7 +13,9 @@ interface EventCardProps {
   location: string;
   capacity: number;
   availableSpots: number;
-  price: number;
+  price?: number; // preço por pessoa (opcional)
+  pricingType?: 'per_person' | 'per_table';
+  tables?: Array<{ id: string; name: string; seats: number; price: number; available: number }>;
   image: string;
   category: string;
 }
@@ -27,12 +29,29 @@ const EventCard = ({
   location, 
   capacity, 
   availableSpots, 
-  price, 
+  price,
+  pricingType = 'per_person',
+  tables = [],
   image, 
   category 
 }: EventCardProps) => {
   const { tenantSlug } = useParams();
   const basePath = tenantSlug ? `/${tenantSlug}` : "";
+
+  // Calcular preço de exibição baseado no tipo
+  const displayPrice = () => {
+    if (pricingType === 'per_person' && price) {
+      return `R$ ${price.toFixed(2)}`;
+    } else if (pricingType === 'per_table' && tables.length > 0) {
+      const minPrice = Math.min(...tables.map(t => t.price));
+      const maxPrice = Math.max(...tables.map(t => t.price));
+      if (minPrice === maxPrice) {
+        return `R$ ${minPrice.toFixed(2)}`;
+      }
+      return `R$ ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`;
+    }
+    return 'Consulte';
+  };
 
   return (
     <Card className="group hover:shadow-elegant transition-all duration-300 hover:scale-105 bg-gradient-card border-0">
@@ -50,7 +69,7 @@ const EventCard = ({
           </div>
           <div className="absolute top-4 right-4">
             <Badge variant="outline" className="bg-background/80 backdrop-blur-sm">
-              R$ {price.toFixed(2)}
+              {displayPrice()}
             </Badge>
           </div>
         </div>

@@ -34,9 +34,15 @@ const EventForm = () => {
     address: isEditing ? 'Rua das Flores, 123 - Centro' : '',
     category: isEditing ? 'Casamento' : '',
     capacity: isEditing ? '200' : '',
-    price: isEditing ? '150' : '',
+    pricingType: isEditing ? 'per_person' : 'per_person', // 'per_person' ou 'per_table'
+    pricePerPerson: isEditing ? '150' : '',
     status: isEditing ? 'Confirmado' : 'Rascunho',
-    image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : ''
+    image: isEditing ? 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop' : '',
+    tables: isEditing ? [
+      { id: '1', name: 'Mesa VIP', seats: 8, price: 200, available: 5 },
+      { id: '2', name: 'Mesa Premium', seats: 8, price: 180, available: 10 },
+      { id: '3', name: 'Mesa Standard', seats: 8, price: 150, available: 15 }
+    ] : []
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -77,8 +83,14 @@ const EventForm = () => {
     if (!formData.capacity || parseInt(formData.capacity) <= 0) {
       newErrors.capacity = 'Capacidade deve ser maior que zero';
     }
-    if (!formData.price || parseFloat(formData.price) < 0) {
-      newErrors.price = 'Preço deve ser maior ou igual a zero';
+    if (formData.pricingType === 'per_person') {
+      if (!formData.pricePerPerson || parseFloat(formData.pricePerPerson) < 0) {
+        newErrors.pricePerPerson = 'Preço por pessoa deve ser maior ou igual a zero';
+      }
+    } else if (formData.pricingType === 'per_table') {
+      if (formData.tables.length === 0) {
+        newErrors.tables = 'Adicione pelo menos uma mesa';
+      }
     }
 
     setErrors(newErrors);
@@ -463,21 +475,21 @@ const EventForm = () => {
                   <Separator />
 
                   <div className="space-y-2">
-                    <Label htmlFor="price">Preço por Pessoa (R$) *</Label>
+                    <Label htmlFor="pricePerPerson">Preço por Pessoa (R$) *</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="price"
+                        id="pricePerPerson"
                         type="number"
                         step="0.01"
-                        value={formData.price}
-                        onChange={(e) => handleInputChange('price', e.target.value)}
+                        value={formData.pricePerPerson}
+                        onChange={(e) => handleInputChange('pricePerPerson', e.target.value)}
                         placeholder="150.00"
-                        className={`pl-10 ${errors.price ? 'border-red-500' : ''}`}
+                        className={`pl-10 ${errors.pricePerPerson ? 'border-red-500' : ''}`}
                       />
                     </div>
-                    {errors.price && (
-                      <p className="text-sm text-red-500">{errors.price}</p>
+                    {errors.pricePerPerson && (
+                      <p className="text-sm text-red-500">{errors.pricePerPerson}</p>
                     )}
                   </div>
                 </CardContent>

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import EventCard from "@/components/EventCard";
+import Navbar from "@/components/Navbar";
 import eventWedding from "@/assets/event-wedding.jpg";
 import eventCorporate from "@/assets/event-corporate.jpg";
 import eventBirthday from "@/assets/event-birthday.jpg";
@@ -18,10 +19,10 @@ const OrganizationPublic = () => {
   const { organization } = useAuth();
   const { currentTenant } = useTenant();
   
-  // Usar os dados da organização ou tenant
-  const orgData = organization || currentTenant;
+  // Usar os dados da organização ou tenant - priorizar currentTenant
+  const orgData = currentTenant || organization;
 
-  // Mock events data
+  // Mock events data - com sistema de preços flexível
   const events = [
     {
       id: "1",
@@ -30,11 +31,12 @@ const OrganizationPublic = () => {
       date: "15 de Dezembro, 2024",
       time: "18:00",
       location: "Salão Principal",
-      price: 150,
-      category: "Casamento",
       capacity: 200,
       availableSpots: 45,
-      image: eventWedding
+      pricingType: "per_person" as const, // ou "per_table"
+      price: 150, // preço por pessoa
+      image: eventWedding,
+      category: "Casamento"
     },
     {
       id: "2",
@@ -43,11 +45,15 @@ const OrganizationPublic = () => {
       date: "20 de Março, 2024",
       time: "19:00",
       location: "Auditório Premium",
-      price: 80,
-      category: "Corporativo",
       capacity: 150,
       availableSpots: 23,
-      image: eventCorporate
+      pricingType: "per_table" as const,
+      tables: [
+        { id: "1", name: "Mesa VIP", seats: 8, price: 120, available: 3 },
+        { id: "2", name: "Mesa Standard", seats: 8, price: 80, available: 10 }
+      ],
+      image: eventCorporate,
+      category: "Corporativo"
     },
     {
       id: "3",
@@ -56,22 +62,25 @@ const OrganizationPublic = () => {
       date: "25 de Março, 2024",
       time: "16:00",
       location: "Jardim Encantado",
-      price: 120,
-      category: "Aniversário", 
       capacity: 80,
       availableSpots: 12,
-      image: eventBirthday
+      pricingType: "per_person" as const,
+      price: 120,
+      image: eventBirthday,
+      category: "Aniversário"
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
+      
       {/* Custom styled header with organization branding */}
       <header 
         className="relative py-20 overflow-hidden"
         style={{
-          background: orgData?.primaryColor && orgData?.secondaryColor 
-            ? `linear-gradient(135deg, hsl(${orgData.primaryColor}), hsl(${orgData.secondaryColor}))`
+          background: currentTenant?.primaryColor && currentTenant?.secondaryColor 
+            ? `linear-gradient(135deg, hsl(${currentTenant.primaryColor}), hsl(${currentTenant.secondaryColor}))`
             : 'linear-gradient(135deg, hsl(263 70% 50%), hsl(280 70% 60%))'
         }}
       >
@@ -79,10 +88,10 @@ const OrganizationPublic = () => {
         
         <div className="relative container mx-auto px-4 text-center text-white">
           <div className="flex items-center justify-center mb-6">
-            {orgData?.logo ? (
+            {currentTenant?.logo ? (
               <img 
-                src={orgData.logo} 
-                alt={orgData.name} 
+                src={currentTenant.logo} 
+                alt={currentTenant.name} 
                 className="h-20 w-20 rounded-full object-cover border-4 border-white/20 mr-4"
               />
             ) : (
@@ -90,7 +99,7 @@ const OrganizationPublic = () => {
             )}
             <div className="text-left">
               <h1 className="text-5xl font-bold mb-2">
-                {orgData?.name || 'Sua Organização'}
+                {currentTenant?.name || 'Sua Organização'}
               </h1>
               <p className="text-xl opacity-90">
                 Eventos inesquecíveis para momentos especiais
@@ -142,6 +151,8 @@ const OrganizationPublic = () => {
                 capacity={event.capacity}
                 availableSpots={event.availableSpots}
                 price={event.price}
+                pricingType={event.pricingType}
+                tables={event.tables}
                 image={event.image}
                 category={event.category}
               />
@@ -220,8 +231,8 @@ const OrganizationPublic = () => {
       <section 
         className="py-20 text-white relative overflow-hidden"
         style={{
-          background: orgData?.primaryColor && orgData?.secondaryColor 
-            ? `linear-gradient(135deg, hsl(${orgData.primaryColor}), hsl(${orgData.secondaryColor}))`
+          background: currentTenant?.primaryColor && currentTenant?.secondaryColor 
+            ? `linear-gradient(135deg, hsl(${currentTenant.primaryColor}), hsl(${currentTenant.secondaryColor}))`
             : 'linear-gradient(135deg, hsl(263 70% 50%), hsl(280 70% 60%))'
         }}
       >

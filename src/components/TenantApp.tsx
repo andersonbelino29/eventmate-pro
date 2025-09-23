@@ -8,7 +8,6 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
-import Navbar from "./Navbar";
 
 const TenantApp = () => {
   const { tenantSlug } = useParams();
@@ -41,7 +40,6 @@ const TenantApp = () => {
 
   return (
     <div>
-      <Navbar />
           <Routes>
             <Route path="/" element={<OrganizationPublic />} />
             <Route path="/evento/:eventId" element={<EventDetails />} />
