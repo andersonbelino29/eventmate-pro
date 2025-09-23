@@ -14,12 +14,14 @@ import Settings from "./pages/admin/Settings";
 import EventList from "./pages/admin/events/EventList";
 import EventForm from "./pages/admin/events/EventForm";
 import EventView from "./pages/admin/events/EventView";
-import TableManagement from "./pages/admin/tables/TableManagement";
+import ItemManagement from "./pages/admin/items/ItemManagement";
 import ContactMessages from "./pages/admin/ContactMessages";
 import Reports from "./pages/admin/Reports";
 import ReservationList from "./pages/admin/reservations/ReservationList";
 import ReservationForm from "./pages/admin/reservations/ReservationForm";
 import EventReservation from "./pages/EventReservation";
+import ReservationDetails from "./pages/ReservationDetails";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import TenantSelector from "./components/TenantSelector";
 import TenantApp from "./components/TenantApp";
 import NotFound from "./pages/NotFound";
@@ -87,18 +89,10 @@ const App = () => (
                 } 
               />
               <Route 
-                path="/admin/events/:eventId/tables" 
+                path="/admin/events/:eventId/items" 
                 element={
                   <ProtectedRoute requireRole="admin">
-                    <TableManagement />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/tables/:eventId" 
-                element={
-                  <ProtectedRoute requireRole="admin">
-                    <TableManagement />
+                    <ItemManagement />
                   </ProtectedRoute>
                 } 
               />
@@ -151,6 +145,8 @@ const App = () => (
                 } 
               />
               <Route path="/evento/:eventId/reservar" element={<EventReservation />} />
+              <Route path="/reserva-detalhes/:eventId/:itemId" element={<ReservationDetails />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/select-tenant" element={<TenantSelector />} />
               <Route path="/:tenantSlug/*" element={<TenantApp />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

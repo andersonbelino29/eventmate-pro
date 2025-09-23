@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { 
   Users, ArrowLeft, Plus, Edit, Trash2, Eye, 
-  Grid3X3, MapPin, CheckCircle, AlertCircle, Clock,
+  Package, MapPin, CheckCircle, AlertCircle, Clock,
   Search, Filter, MoreHorizontal
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -24,20 +24,20 @@ import { useToast } from "@/hooks/use-toast";
 import { usePagination } from "@/hooks/usePagination";
 import { CustomPagination } from "@/components/ui/custom-pagination";
 
-const TableManagement = () => {
+const ItemManagement = () => {
   const { eventId } = useParams();
   const { toast } = useToast();
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedTable, setSelectedTable] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
   // Form states
   const [formData, setFormData] = useState({
-    number: '',
-    seats: '',
+    name: '',
+    capacity: '',
     location: '',
     type: '',
     price: '',
@@ -47,20 +47,21 @@ const TableManagement = () => {
   // Mock event data
   const event = {
     id: eventId,
-    name: "Casamento dos Sonhos",
+    name: "Casamento Elegante",
     date: "2024-03-15",
-    location: "Salão Principal"
+    location: "Salão Principal",
+    itemType: "mesas" // Could be "mesas", "ingressos", "areas", etc.
   };
 
-  // Mock tables data
-  const [tables, setTables] = useState([
+  // Mock items data
+  const [items, setItems] = useState([
     {
       id: 1,
-      number: 1,
-      seats: 8,
-      location: "Área Central",
-      type: "Redonda",
-      price: 1200,
+      name: "Mesa VIP - Frente do Palco",
+      capacity: 8,
+      location: "Área VIP",
+      type: "Mesa Premium",
+      price: 200,
       status: "Reservada",
       customerName: "Maria Silva",
       customerEmail: "maria@email.com",
@@ -68,11 +69,11 @@ const TableManagement = () => {
     },
     {
       id: 2,
-      number: 2,
-      seats: 6,
+      name: "Mesa Standard - Área Central",
+      capacity: 6,
       location: "Área Central",
-      type: "Retangular",
-      price: 900,
+      type: "Mesa Standard",
+      price: 150,
       status: "Disponível",
       customerName: null,
       customerEmail: null,
@@ -80,11 +81,11 @@ const TableManagement = () => {
     },
     {
       id: 3,
-      number: 3,
-      seats: 10,
-      location: "Área VIP",
-      type: "Redonda",
-      price: 1500,
+      name: "Área Família - Jardim",
+      capacity: 10,
+      location: "Área Jardim",
+      type: "Área Familiar",
+      price: 180,
       status: "Reservada",
       customerName: "João Santos",
       customerEmail: "joao@email.com", 
@@ -92,23 +93,23 @@ const TableManagement = () => {
     },
     {
       id: 4,
-      number: 4,
-      seats: 4,
-      location: "Área Jardim",
-      type: "Quadrada",
-      price: 600,
-      status: "Manutenção",
+      name: "Ingresso Individual",
+      capacity: 1,
+      location: "Área Geral",
+      type: "Ingresso",
+      price: 120,
+      status: "Disponível",
       customerName: null,
       customerEmail: null,
       reservedAt: null
     },
     {
       id: 5,
-      number: 5,
-      seats: 8,
-      location: "Área Central",
-      type: "Redonda",
-      price: 1200,
+      name: "Camarote Premium",
+      capacity: 4,
+      location: "Área VIP",
+      type: "Camarote",
+      price: 300,
       status: "Disponível",
       customerName: null,
       customerEmail: null,
@@ -116,8 +117,21 @@ const TableManagement = () => {
     }
   ]);
 
-  const tableTypes = ["Redonda", "Retangular", "Quadrada", "Oval"];
-  const locations = ["Área Central", "Área VIP", "Área Jardim", "Área Lateral", "Área Fundos"];
+  const getItemTypes = (eventType: string) => {
+    switch (eventType) {
+      case 'mesas':
+        return ["Mesa Premium", "Mesa Standard", "Mesa VIP", "Mesa Família"];
+      case 'ingressos':
+        return ["Ingresso Individual", "Ingresso Casal", "Ingresso Família"];
+      case 'areas':
+        return ["Área VIP", "Área Família", "Camarote", "Área Geral"];
+      default:
+        return ["Mesa Premium", "Mesa Standard", "Área VIP", "Ingresso"];
+    }
+  };
+
+  const itemTypes = getItemTypes(event.itemType);
+  const locations = ["Área Central", "Área VIP", "Área Jardim", "Área Lateral", "Área Geral"];
   const statuses = ["Disponível", "Reservada", "Manutenção", "Bloqueada"];
 
   const getStatusBadge = (status: string) => {
@@ -141,8 +155,8 @@ const TableManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      number: '',
-      seats: '',
+      name: '',
+      capacity: '',
       location: '',
       type: '',
       price: '',
@@ -150,8 +164,8 @@ const TableManagement = () => {
     });
   };
 
-  const handleCreateTable = async () => {
-    if (!formData.number || !formData.seats || !formData.location || !formData.type || !formData.price) {
+  const handleCreateItem = async () => {
+    if (!formData.name || !formData.capacity || !formData.location || !formData.type || !formData.price) {
       toast({
         title: "Erro na validação",
         description: "Por favor, preencha todos os campos obrigatórios.",
@@ -160,10 +174,10 @@ const TableManagement = () => {
       return;
     }
 
-    const newTable = {
-      id: tables.length + 1,
-      number: parseInt(formData.number),
-      seats: parseInt(formData.seats),
+    const newItem = {
+      id: items.length + 1,
+      name: formData.name,
+      capacity: parseInt(formData.capacity),
       location: formData.location,
       type: formData.type,
       price: parseFloat(formData.price),
@@ -173,87 +187,87 @@ const TableManagement = () => {
       reservedAt: null
     };
 
-    setTables(prev => [...prev, newTable]);
+    setItems(prev => [...prev, newItem]);
     setIsCreateModalOpen(false);
     resetForm();
 
     toast({
-      title: "Mesa criada!",
-      description: `Mesa ${formData.number} foi criada com sucesso.`,
+      title: "Item criado!",
+      description: `${formData.name} foi criado com sucesso.`,
     });
   };
 
-  const handleEditTable = async () => {
-    if (!selectedTable) return;
+  const handleEditItem = async () => {
+    if (!selectedItem) return;
 
-    const updatedTables = tables.map(table => 
-      table.id === selectedTable.id 
+    const updatedItems = items.map(item => 
+      item.id === selectedItem.id 
         ? { 
-            ...table, 
-            number: parseInt(formData.number),
-            seats: parseInt(formData.seats),
+            ...item, 
+            name: formData.name,
+            capacity: parseInt(formData.capacity),
             location: formData.location,
             type: formData.type,
             price: parseFloat(formData.price),
             status: formData.status
           }
-        : table
+        : item
     );
 
-    setTables(updatedTables);
+    setItems(updatedItems);
     setIsEditModalOpen(false);
-    setSelectedTable(null);
+    setSelectedItem(null);
     resetForm();
 
     toast({
-      title: "Mesa atualizada!",
-      description: `Mesa ${formData.number} foi atualizada com sucesso.`,
+      title: "Item atualizado!",
+      description: `${formData.name} foi atualizado com sucesso.`,
     });
   };
 
-  const handleDeleteTable = (tableId: number) => {
-    setTables(prev => prev.filter(table => table.id !== tableId));
+  const handleDeleteItem = (itemId: number) => {
+    setItems(prev => prev.filter(item => item.id !== itemId));
     toast({
-      title: "Mesa excluída!",
-      description: "A mesa foi removida com sucesso.",
+      title: "Item excluído!",
+      description: "O item foi removido com sucesso.",
     });
   };
 
-  const openEditModal = (table: any) => {
-    setSelectedTable(table);
+  const openEditModal = (item: any) => {
+    setSelectedItem(item);
     setFormData({
-      number: table.number.toString(),
-      seats: table.seats.toString(),
-      location: table.location,
-      type: table.type,
-      price: table.price.toString(),
-      status: table.status
+      name: item.name,
+      capacity: item.capacity.toString(),
+      location: item.location,
+      type: item.type,
+      price: item.price.toString(),
+      status: item.status
     });
     setIsEditModalOpen(true);
   };
 
-  const filteredTables = tables.filter(table => {
+  const filteredItems = items.filter(item => {
     const matchesSearch = 
-      table.number.toString().includes(searchQuery) ||
-      table.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      table.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (table.customerName && table.customerName.toLowerCase().includes(searchQuery.toLowerCase()));
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.customerName && item.customerName.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesStatus = statusFilter === 'all' || table.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
 
-  const tablesPagination = usePagination({
-    data: filteredTables,
+  const itemsPagination = usePagination({
+    data: filteredItems,
     itemsPerPage: 10
   });
 
   const stats = {
-    total: tables.length,
-    available: tables.filter(t => t.status === 'Disponível').length,
-    reserved: tables.filter(t => t.status === 'Reservada').length,
-    maintenance: tables.filter(t => t.status === 'Manutenção').length
+    total: items.length,
+    available: items.filter(t => t.status === 'Disponível').length,
+    reserved: items.filter(t => t.status === 'Reservada').length,
+    maintenance: items.filter(t => t.status === 'Manutenção').length
   };
 
   return (
@@ -270,9 +284,9 @@ const TableManagement = () => {
                 </Button>
               </Link>
               <div className="flex items-center space-x-2">
-                <Grid3X3 className="h-6 w-6 text-primary" />
+                <Package className="h-6 w-6 text-primary" />
                 <div>
-                  <h1 className="text-2xl font-bold">Gerenciar Mesas</h1>
+                  <h1 className="text-2xl font-bold">Gerenciar Itens</h1>
                   <p className="text-sm text-muted-foreground">{event.name}</p>
                 </div>
               </div>
@@ -282,38 +296,49 @@ const TableManagement = () => {
               <DialogTrigger asChild>
                 <Button onClick={resetForm}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Nova Mesa
+                  Novo Item
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Criar Nova Mesa</DialogTitle>
+                  <DialogTitle>Criar Novo Item</DialogTitle>
                   <DialogDescription>
-                    Configure uma nova mesa para o evento
+                    Configure um novo item para o evento
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nome do Item *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder="Ex: Mesa VIP - Frente do Palco"
+                    />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="number">Número da Mesa *</Label>
+                      <Label htmlFor="capacity">Capacidade *</Label>
                       <Input
-                        id="number"
+                        id="capacity"
                         type="number"
-                        value={formData.number}
-                        onChange={(e) => handleInputChange('number', e.target.value)}
-                        placeholder="1"
+                        value={formData.capacity}
+                        onChange={(e) => handleInputChange('capacity', e.target.value)}
+                        placeholder="8"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="seats">Quantidade de Lugares *</Label>
+                      <Label htmlFor="price">Preço por Pessoa (R$) *</Label>
                       <Input
-                        id="seats"
+                        id="price"
                         type="number"
-                        value={formData.seats}
-                        onChange={(e) => handleInputChange('seats', e.target.value)}
-                        placeholder="8"
+                        step="0.01"
+                        value={formData.price}
+                        onChange={(e) => handleInputChange('price', e.target.value)}
+                        placeholder="200.00"
                       />
                     </div>
                   </div>
@@ -338,29 +363,17 @@ const TableManagement = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="type">Tipo da Mesa *</Label>
+                    <Label htmlFor="type">Tipo do Item *</Label>
                     <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o formato" />
+                        <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        {tableTypes.map((type) => (
+                        {itemTypes.map((type) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Preço da Mesa (R$) *</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => handleInputChange('price', e.target.value)}
-                      placeholder="1200.00"
-                    />
                   </div>
 
                   <div className="space-y-2">
@@ -382,8 +395,8 @@ const TableManagement = () => {
                   <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button onClick={handleCreateTable}>
-                    Criar Mesa
+                  <Button onClick={handleCreateItem}>
+                    Criar Item
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -398,9 +411,9 @@ const TableManagement = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Grid3X3 className="h-8 w-8 text-blue-600" />
+                <Package className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-muted-foreground">Total de Mesas</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total de Itens</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
               </div>
@@ -424,7 +437,7 @@ const TableManagement = () => {
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-muted-foreground">Reservadas</p>
+                  <p className="text-sm font-medium text-muted-foreground">Reservados</p>
                   <p className="text-2xl font-bold">{stats.reserved}</p>
                 </div>
               </div>
@@ -449,7 +462,7 @@ const TableManagement = () => {
           <CardHeader>
             <CardTitle>Filtros</CardTitle>
             <CardDescription>
-              Encontre mesas específicas usando os filtros abaixo
+              Encontre itens específicos usando os filtros abaixo
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -458,7 +471,7 @@ const TableManagement = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar mesas..."
+                    placeholder="Buscar itens..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -481,12 +494,12 @@ const TableManagement = () => {
           </CardContent>
         </Card>
 
-        {/* Tables List */}
+        {/* Items List */}
         <Card>
           <CardHeader>
-            <CardTitle>Lista de Mesas ({filteredTables.length})</CardTitle>
+            <CardTitle>Lista de Itens ({filteredItems.length})</CardTitle>
             <CardDescription>
-              Gerencie todas as mesas do evento
+              Gerencie todos os itens do evento
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -494,113 +507,98 @@ const TableManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Mesa</TableHead>
-                    <TableHead>Lugares</TableHead>
+                    <TableHead>Item</TableHead>
+                    <TableHead>Capacidade</TableHead>
                     <TableHead>Localização</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Preço</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Cliente</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead>Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tablesPagination.paginatedData.map((table) => (
-                    <TableRow key={table.id}>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Grid3X3 className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span className="font-medium">Mesa {table.number}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-                          {table.seats}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                          {table.location}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{table.type}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium">R$ {table.price}</span>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(table.status)}
-                      </TableCell>
-                      <TableCell>
-                        {table.customerName ? (
-                          <div>
-                            <div className="font-medium">{table.customerName}</div>
-                            <div className="text-sm text-muted-foreground">{table.customerEmail}</div>
-                            <div className="text-xs text-muted-foreground">
-                              Reservado em {new Date(table.reservedAt!).toLocaleDateString('pt-BR')}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => openEditModal(table)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleDeleteTable(table.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                  {itemsPagination.paginatedData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8">
+                        <div className="flex flex-col items-center justify-center text-muted-foreground">
+                          <Package className="h-12 w-12 mb-4" />
+                          <p className="text-lg font-medium">Nenhum item encontrado</p>
+                          <p className="text-sm">Tente ajustar os filtros ou criar um novo item</p>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    itemsPagination.paginatedData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{item.name}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Users className="h-4 w-4 mr-1 text-muted-foreground" />
+                            {item.capacity}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
+                            {item.location}
+                          </div>
+                        </TableCell>
+                        <TableCell>{item.type}</TableCell>
+                        <TableCell>R$ {item.price}</TableCell>
+                        <TableCell>{getStatusBadge(item.status)}</TableCell>
+                        <TableCell>
+                          {item.customerName ? (
+                            <div>
+                              <div className="font-medium">{item.customerName}</div>
+                              <div className="text-sm text-muted-foreground">{item.customerEmail}</div>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditModal(item)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteItem(item.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
-
-            {filteredTables.length > 0 && (
-              <CustomPagination
-                currentPage={tablesPagination.currentPage}
-                totalPages={tablesPagination.totalPages}
-                onPageChange={tablesPagination.goToPage}
-                canGoPrevious={tablesPagination.canGoPrevious}
-                canGoNext={tablesPagination.canGoNext}
-                startIndex={tablesPagination.startIndex}
-                endIndex={tablesPagination.endIndex}
-                totalItems={tablesPagination.totalItems}
-              />
-            )}
-
-            {filteredTables.length === 0 && (
-              <div className="text-center py-12">
-                <Grid3X3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhuma mesa encontrada</h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchQuery || statusFilter !== 'all' 
-                    ? 'Tente ajustar os filtros para encontrar mesas'
-                    : 'Comece criando a primeira mesa para este evento'
-                  }
-                </p>
-                {!searchQuery && statusFilter === 'all' && (
-                  <Button onClick={() => setIsCreateModalOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Criar Primeira Mesa
-                  </Button>
-                )}
+            
+            {filteredItems.length > 0 && (
+              <div className="mt-4">
+                <CustomPagination
+                  currentPage={itemsPagination.currentPage}
+                  totalPages={itemsPagination.totalPages}
+                  canGoPrevious={itemsPagination.currentPage > 1}
+                  canGoNext={itemsPagination.currentPage < itemsPagination.totalPages}
+                  startIndex={itemsPagination.startIndex}
+                  endIndex={itemsPagination.endIndex}
+                  totalItems={filteredItems.length}
+                  onPageChange={itemsPagination.goToPage}
+                />
               </div>
             )}
           </CardContent>
@@ -611,33 +609,44 @@ const TableManagement = () => {
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Mesa</DialogTitle>
+            <DialogTitle>Editar Item</DialogTitle>
             <DialogDescription>
-              Atualize as informações da mesa
+              Atualize as informações do item
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Nome do Item *</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Ex: Mesa VIP - Frente do Palco"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-number">Número da Mesa *</Label>
+                <Label htmlFor="edit-capacity">Capacidade *</Label>
                 <Input
-                  id="edit-number"
+                  id="edit-capacity"
                   type="number"
-                  value={formData.number}
-                  onChange={(e) => handleInputChange('number', e.target.value)}
-                  placeholder="1"
+                  value={formData.capacity}
+                  onChange={(e) => handleInputChange('capacity', e.target.value)}
+                  placeholder="8"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="edit-seats">Quantidade de Lugares *</Label>
+                <Label htmlFor="edit-price">Preço por Pessoa (R$) *</Label>
                 <Input
-                  id="edit-seats"
+                  id="edit-price"
                   type="number"
-                  value={formData.seats}
-                  onChange={(e) => handleInputChange('seats', e.target.value)}
-                  placeholder="8"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange('price', e.target.value)}
+                  placeholder="200.00"
                 />
               </div>
             </div>
@@ -662,29 +671,17 @@ const TableManagement = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-type">Tipo da Mesa *</Label>
+              <Label htmlFor="edit-type">Tipo do Item *</Label>
               <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o formato" />
+                  <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {tableTypes.map((type) => (
+                  {itemTypes.map((type) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-price">Preço da Mesa (R$) *</Label>
-              <Input
-                id="edit-price"
-                type="number"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => handleInputChange('price', e.target.value)}
-                placeholder="1200.00"
-              />
             </div>
 
             <div className="space-y-2">
@@ -706,8 +703,8 @@ const TableManagement = () => {
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleEditTable}>
-              Salvar Alterações
+            <Button onClick={handleEditItem}>
+              Atualizar Item
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -716,4 +713,4 @@ const TableManagement = () => {
   );
 };
 
-export default TableManagement;
+export default ItemManagement;
