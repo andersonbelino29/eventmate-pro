@@ -11,6 +11,12 @@ import Pricing from "./pages/Pricing";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/admin/Settings";
+import EventList from "./pages/admin/events/EventList";
+import EventForm from "./pages/admin/events/EventForm";
+import EventView from "./pages/admin/events/EventView";
+import TableManagement from "./pages/admin/tables/TableManagement";
+import Reports from "./pages/admin/Reports";
+import EventReservation from "./pages/EventReservation";
 import TenantSelector from "./components/TenantSelector";
 import TenantApp from "./components/TenantApp";
 import NotFound from "./pages/NotFound";
@@ -45,6 +51,55 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/admin/events" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <EventList />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/events/new" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <EventForm />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/events/:id" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <EventView />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/events/:id/edit" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <EventForm />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/events/:eventId/tables" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <TableManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/reports" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <Reports />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/evento/:eventId/reservar" element={<EventReservation />} />
               <Route path="/select-tenant" element={<TenantSelector />} />
               <Route path="/:tenantSlug/*" element={<TenantApp />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
