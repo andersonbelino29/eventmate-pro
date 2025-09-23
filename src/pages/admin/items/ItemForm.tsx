@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTenant } from '@/contexts/TenantContext';
 
 const ItemForm = () => {
-  const { eventId, itemId } = useParams();
+  const { itemId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { currentTenant } = useTenant();
@@ -150,7 +150,7 @@ const ItemForm = () => {
         description: `${formData.name} foi ${isEditing ? 'atualizado' : 'criado'} com sucesso.`,
       });
 
-      navigate(`/admin/events/${eventId}/items`);
+      navigate('/admin/items');
     } catch (error) {
       toast({
         title: "Erro ao salvar item",
@@ -168,7 +168,7 @@ const ItemForm = () => {
       <header className="bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center space-x-4">
-            <Link to={`/admin/events/${eventId}/items`}>
+            <Link to="/admin/items">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar para {itemConfig.plural}
@@ -178,10 +178,10 @@ const ItemForm = () => {
               <Package className="h-6 w-6 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold">
-                  {isEditing ? `Editar ${itemConfig.singular}` : `Criar Nova ${itemConfig.singular}`}
+                  {isEditing ? `Editar ${itemConfig.singular}` : `Criar Novo ${itemConfig.singular}`}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Configure as informações e preços do item
+                  Configure as informações e preços do item para a organização
                 </p>
               </div>
             </div>
@@ -413,7 +413,7 @@ const ItemForm = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate(`/admin/events/${eventId}/items`)}
+              onClick={() => navigate('/admin/items')}
               disabled={isLoading}
             >
               Cancelar

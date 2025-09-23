@@ -38,7 +38,6 @@ const ItemFormGeneral = () => {
     location: '',
     type: '',
     price: '',
-    eventId: '',
     isActive: true,
     hasTimeSlots: false,
     allowMultipleSelection: false,
@@ -50,13 +49,6 @@ const ItemFormGeneral = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock events
-  const events = [
-    { id: 1, name: "Casamento dos Sonhos" },
-    { id: 2, name: "Evento Corporativo Tech" },
-    { id: 3, name: "Festa de Aniversário" },
-    { id: 4, name: "Workshop de Culinária" }
-  ];
 
   const getItemTypes = (itemType: string) => {
     switch (itemType) {
@@ -87,15 +79,6 @@ const ItemFormGeneral = () => {
       toast({
         title: "Erro na validação",
         description: "Nome do item é obrigatório.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    if (!formData.eventId) {
-      toast({
-        title: "Erro na validação",
-        description: "Selecione um evento para o item.",
         variant: "destructive"
       });
       return false;
@@ -195,10 +178,10 @@ const ItemFormGeneral = () => {
               <Package className="h-6 w-6 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold">
-                  {isEditing ? `Editar ${itemConfig.singular}` : `Criar Nova ${itemConfig.singular}`}
+                  {isEditing ? `Editar ${itemConfig.singular}` : `Criar Novo ${itemConfig.singular}`}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Configure as informações e preços do item
+                  Configure as informações e preços do item para a organização
                 </p>
               </div>
             </div>
@@ -233,22 +216,6 @@ const ItemFormGeneral = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="eventId">Evento *</Label>
-                  <Select value={formData.eventId} onValueChange={(value) => handleInputChange('eventId', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o evento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {events.map((event) => (
-                        <SelectItem key={event.id} value={event.id.toString()}>{event.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
                   <Label htmlFor="type">Tipo *</Label>
                   <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
                     <SelectTrigger>
@@ -261,7 +228,9 @@ const ItemFormGeneral = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {itemConfig.requiresCapacity && (
                   <div className="space-y-2">
                     <Label htmlFor="capacity">
@@ -278,6 +247,27 @@ const ItemFormGeneral = () => {
                     />
                   </div>
                 )}
+
+                {itemConfig.requiresLocation && (
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Localização *</Label>
+                    <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a localização" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations.map((location) => (
+                          <SelectItem key={location} value={location}>
+                            <div className="flex items-center">
+                              <MapPin className="h-4 w-4 mr-2" />
+                              {location}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -291,26 +281,6 @@ const ItemFormGeneral = () => {
                 />
               </div>
 
-              {itemConfig.requiresLocation && (
-                <div className="space-y-2">
-                  <Label htmlFor="location">Localização *</Label>
-                  <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a localização" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {locations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2" />
-                            {location}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
             </CardContent>
           </Card>
 
