@@ -186,13 +186,27 @@ const Dashboard = () => {
                         </div>
                         
                         <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
+                          <Link to={`/admin/events/${event.id}`}>
+                            <Button variant="ghost" size="sm" title="Ver evento">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Link to={`/admin/events/${event.id}/edit`}>
+                            <Button variant="ghost" size="sm" title="Editar evento">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Excluir evento"
+                            onClick={() => {
+                              if (confirm('Tem certeza que deseja excluir este evento?')) {
+                                console.log('Excluindo evento:', event.id);
+                                // TODO: Implementar exclusão real
+                              }
+                            }}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>

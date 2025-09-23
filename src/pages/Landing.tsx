@@ -65,10 +65,12 @@ const Landing = () => {
                 </Button>
               </Link>
               
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                <Calendar className="h-5 w-5 mr-2" />
-                Ver Demonstração
-              </Button>
+              <Link to="/select-tenant">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                  <Calendar className="h-5 w-5 mr-2" />
+                  Ver Demonstração
+                </Button>
+              </Link>
             </div>
 
             {/* Stats */}
